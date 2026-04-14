@@ -23,7 +23,7 @@ export default function RootLayout({
        
        <link rel="icon" className="rounded-[50%]" href="/drive-logo.svg" sizes="any" />
      </head>
-      <body>
+      <body suppressHydrationWarning>
         
         <ThemeProvider attribute="class" enableSystem>
           {children}

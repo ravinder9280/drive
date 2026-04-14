@@ -1,7 +1,8 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useState } from "react";
+import { UploadIcon } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -32,13 +33,67 @@ export function UploadModal({
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const reset = useCallback(() => {
     setFile(null);
     setName("");
+    setIsDragging(false);
     setError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }, []);
+
+  const setSelectedFile = useCallback(
+    (nextFile: File | null) => {
+      setFile(nextFile);
+      setError(null);
+      if (nextFile && !name) {
+        setName(nextFile.name);
+      }
+    },
+    [name]
+  );
+
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = event.target.files?.[0] ?? null;
+      setSelectedFile(selected);
+    },
+    [setSelectedFile]
+  );
+
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (!folderId) {
+      return;
+    }
+    setIsDragging(true);
+  }, [folderId]);
+
+  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      setIsDragging(false);
+      if (!folderId) {
+        return;
+      }
+      const droppedImage =
+        Array.from(event.dataTransfer.files).find((candidate) =>
+          candidate.type.startsWith("image/")
+        ) ?? null;
+      setSelectedFile(droppedImage);
+    },
+    [folderId, setSelectedFile]
+  );
 
   const handleClose = (next: boolean) => {
     if (!next) {
@@ -80,28 +135,55 @@ export function UploadModal({
         <form onSubmit={(e) => void handleSubmit(e)}>
           <DialogHeader>
             <DialogTitle>Upload image</DialogTitle>
-            <DialogDescription>
-              Images are stored on the server under the selected folder.
-            </DialogDescription>
+            
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Input
-                type="file"
-                accept="image/*"
-                disabled={!folderId}
-                onChange={(ev) => {
-                  const f = ev.target.files?.[0] ?? null;
-                  setFile(f);
-                  if (f && !name) {
-                    setName(f.name);
-                  }
-                }}
-              />
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 py-16 transition-colors ${isDragging
+                  ? "border-zinc-400 bg-muted/90"
+                  : "border-zinc-300 hover:border-zinc-400 bg-muted/50"
+                  }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  disabled={!folderId}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                {file ? (
+                  <>
+                    <UploadIcon className="mb-4 size-6" />
+                    <p className="mb-1 text-sm font-semibold ">
+                      {file.name}
+                    </p>
+                    <p className="text-sm font-normal text-zinc-500">
+                      Click to select a different image
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="mb-4 size-6" />
+                    <p className="mb-1 text-sm font-semibold text-muted-foreground">
+                      Select an image to upload
+                    </p>
+                    <p className="text-sm font-normal text-muted-foreground">
+                      or drag and drop it here
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
             <div className="grid gap-2">
               <label className="text-sm font-medium" htmlFor="upload-name">
-                Display name
+                Name
               </label>
               <Input
                 id="upload-name"
