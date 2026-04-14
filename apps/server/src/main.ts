@@ -1,10 +1,14 @@
+import "dotenv/config";
+
 import * as http from "node:http";
 
 import app from "./app";
+import { connectDb } from "./config/db";
 
-const port = 3001;
+const port = Number(process.env.PORT) || 3001;
 
 const init = async (): Promise<void> => {
+  await connectDb();
   const server = http.createServer(app);
 
   server.listen(port, "::", () => {
@@ -12,4 +16,7 @@ const init = async (): Promise<void> => {
   });
 };
 
-init();
+init().catch((err: unknown) => {
+  console.error(err);
+  process.exit(1);
+});

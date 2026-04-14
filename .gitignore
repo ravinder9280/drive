@@ -46,6 +46,7 @@ dist/**
 /dist
 packages/*/dist
 apps/*/dist
+apps/server/uploads
 
 .turbo
 /test-results/

@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "author": "Ives Furtado | @ivesfurtado",
+  "author": "ravinder",
   "version": "1.0.0",
   "description": "",
   "main": "build/main.js",
@@ -14,16 +14,27 @@
   },
   "dependencies": {
     "@monorepo/types": "workspace:*",
+    "bcrypt": "^6.0.0",
     "cors": "2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1",
     "morgan": "^1.10.1",
-    "ts-node-dev": "^2.0.0"
+    "multer": "^2.1.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@monorepo/eslint-config": "workspace:*",
     "@monorepo/tsconfig": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "2.8.19",
     "@types/express": "^5.0.3",
-    "@types/morgan": "^1.9.10"
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^24.3.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2"
   }
 }

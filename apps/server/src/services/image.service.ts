@@ -1,0 +1,77 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+
+import type { ImageFile } from "@monorepo/types";
+import mongoose from "mongoose";
+
+import { ImageModel, type ImageDocument } from "../models/image.model";
+import { AppError } from "../utils/app-error";
+import * as folderService from "./folder.service";
+
+const toImageDto = (doc: ImageDocument): ImageFile => ({
+  _id: doc._id.toString(),
+  name: doc.name,
+  url: doc.url,
+  size: doc.size,
+  folderId: doc.folderId.toString(),
+  userId: doc.userId.toString(),
+  createdAt: doc.createdAt.toISOString(),
+});
+
+export const listImagesInFolder = async (
+  userId: string,
+  folderId: string
+): Promise<ImageFile[]> => {
+  await folderService.assertFolderOwned(userId, folderId);
+  const uid = new mongoose.Types.ObjectId(userId);
+  const images = await ImageModel.find({
+    userId: uid,
+    folderId,
+  }).sort({ createdAt: -1 });
+  return images.map((doc) => toImageDto(doc));
+};
+
+export const createImageRecord = async (params: {
+  userId: string;
+  folderId: string;
+  name: string;
+  url: string;
+  size: number;
+}): Promise<ImageFile> => {
+  await folderService.assertFolderOwned(params.userId, params.folderId);
+  const doc = await ImageModel.create({
+    userId: new mongoose.Types.ObjectId(params.userId),
+    folderId: new mongoose.Types.ObjectId(params.folderId),
+    name: params.name,
+    url: params.url,
+    size: params.size,
+  });
+  return toImageDto(doc);
+};
+
+export const deleteImageRecord = async (
+  userId: string,
+  imageId: string
+): Promise<void> => {
+  if (!mongoose.Types.ObjectId.isValid(imageId)) {
+    throw new AppError(400, "Invalid image id", "INVALID_IMAGE_ID");
+  }
+
+  const uid = new mongoose.Types.ObjectId(userId);
+  const image = await ImageModel.findOne({
+    _id: new mongoose.Types.ObjectId(imageId),
+    userId: uid,
+  });
+
+  if (!image) {
+    throw new AppError(404, "Image not found or access denied", "IMAGE_NOT_FOUND");
+  }
+
+  await image.deleteOne();
+
+  if (image.url.startsWith("/uploads/")) {
+    const filename = image.url.replace("/uploads/", "");
+    const absolutePath = path.join(process.cwd(), "uploads", filename);
+    await fs.unlink(absolutePath).catch(() => undefined);
+  }
+};
