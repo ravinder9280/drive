@@ -75,3 +75,34 @@ export const deleteImageRecord = async (
     await fs.unlink(absolutePath).catch(() => undefined);
   }
 };
+
+export const renameImageRecord = async (
+  userId: string,
+  imageId: string,
+  name: string
+): Promise<ImageFile> => {
+  if (!mongoose.Types.ObjectId.isValid(imageId)) {
+    throw new AppError(400, "Invalid image id", "INVALID_IMAGE_ID");
+  }
+
+  const nextName = name.trim();
+  if (!nextName) {
+    throw new AppError(400, "name is required");
+  }
+
+  const uid = new mongoose.Types.ObjectId(userId);
+  const image = await ImageModel.findOneAndUpdate(
+    {
+      _id: new mongoose.Types.ObjectId(imageId),
+      userId: uid,
+    },
+    { name: nextName },
+    { new: true }
+  );
+
+  if (!image) {
+    throw new AppError(404, "Image not found or access denied", "IMAGE_NOT_FOUND");
+  }
+
+  return toImageDto(image);
+};

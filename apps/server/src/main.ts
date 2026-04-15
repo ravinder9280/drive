@@ -16,6 +16,7 @@ const init = async (): Promise<void> => {
   });
 };
 
+
 init().catch((err: unknown) => {
   console.error(err);
   process.exit(1);

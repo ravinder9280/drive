@@ -67,3 +67,20 @@ export const deleteById = asyncHandler(async (req: Request, res: Response) => {
   await imageService.deleteImageRecord(userId, imageId);
   res.status(200).json({ message: "Image deleted" });
 });
+//rename image
+export const renameImage = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.userId;
+  if (!userId) {
+    throw new AppError(401, "Unauthorized");
+  }
+  const imageId = req.params.imageId;
+  if (!imageId) {
+    throw new AppError(400, "imageId is required");
+  }
+  const name = req.body.name as string | undefined;
+  if (!name) {
+    throw new AppError(400, "name is required");
+  }
+  const image = await imageService.renameImageRecord(userId, imageId, name);
+  res.status(200).json({ image });
+});

@@ -32,7 +32,7 @@ import { useFolderImages } from "@/hooks/useFolderImages";
 import { useFolders } from "@/hooks/useFolders";
 import { Loader2Icon, LogOutIcon, PlusIcon, UploadIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@monorepo/ui/components/avatar";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger } from "@monorepo/ui/components/dropdown-menu";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@monorepo/ui/components/dropdown-menu";
 import { buildChildrenMap } from "@/lib/common";
 
 
@@ -163,8 +163,8 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2 shrink-0">
 
           <DropdownMenu>
-            <DropdownMenuTrigger>
-          <Avatar className="size-8">
+            <DropdownMenuTrigger className="ring-transparent">
+          <Avatar className="size-8 ring-transparent">
             <AvatarImage src={'https://github.com/shadcn.png'} height={32} width={32} alt={'Shadcn'} />
             <AvatarFallback>
               SC
@@ -172,11 +172,16 @@ export default function DashboardPage() {
           </Avatar>
 
             </DropdownMenuTrigger>
-            <DropdownMenuContent onClick={() => {
-              logout();
-              router.replace("/login");
-            }}>
-              <DropdownMenuItem>
+            <DropdownMenuContent>
+            <DropdownMenuLabel>
+              {user?.email}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+              <DropdownMenuItem className="text-red-500" onClick={() => {
+                logout();
+                router.replace("/login");
+              }}>
                 Log out <LogOutIcon className="size-4" />
               </DropdownMenuItem>
             </DropdownMenuContent>

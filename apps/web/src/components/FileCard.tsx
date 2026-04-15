@@ -20,8 +20,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@monorepo/ui/components/dropdown-menu";
+import { Input } from "@monorepo/ui/components/input";
 import axios from "axios";
-import { DownloadIcon, EllipsisVerticalIcon, EyeIcon, TrashIcon } from "lucide-react";
+import { DownloadIcon, EllipsisVerticalIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
 import * as imageApi from "@/services/image.api";
@@ -48,16 +49,30 @@ export function FileCard({
   const src = imageApi.imageUrlToAbsolute(image.url);
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(image.name);
 
-  const handleDownload = (): void => {
-    const link = document.createElement("a");
-    link.href = src;
-    link.download = image.name;
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  const handleDownload = async (): Promise<void> => {
+    try {
+      const response = await fetch(src, { mode: "cors" });
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = image.name || "download";
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed", err);
+    }
   };
 
   const handleDelete = async (): Promise<void> => {
@@ -73,6 +88,32 @@ export function FileCard({
       window.alert(message);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleRename = (): void => {
+    setRenameValue(image.name);
+    setRenameOpen(true);
+  };
+
+  const submitRename = async (): Promise<void> => {
+    const nextName = renameValue.trim();
+    if (!nextName) {
+      window.alert("Name is required");
+      return;
+    }
+    setIsRenaming(true);
+    try {
+      await imageApi.renameImage(image._id, nextName);
+      setRenameOpen(false);
+      onDeleted?.();
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
+        : "Failed to rename image";
+      window.alert(message);
+    } finally {
+      setIsRenaming(false);
     }
   };
 
@@ -113,6 +154,9 @@ export function FileCard({
                 <DropdownMenuItem onClick={handleDownload}>
                   <DownloadIcon className="size-4" /> Download
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleRename}>
+                  <PencilIcon className="size-4" /> Rename
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-500"
                   onClick={() => setConfirmOpen(true)}
@@ -144,6 +188,38 @@ export function FileCard({
               disabled={isDeleting}
             >
               {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rename image</AlertDialogTitle>
+            <AlertDialogDescription>
+              Update the file name for "{image.name}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            value={renameValue}
+            autoFocus
+            
+
+            onChange={(e) => setRenameValue(e.target.value)}
+            placeholder="Enter image name"
+            disabled={isRenaming}
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRenaming}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void submitRename();
+              }}
+              disabled={isRenaming}
+            >
+              {isRenaming ? "Saving..." : "Save"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

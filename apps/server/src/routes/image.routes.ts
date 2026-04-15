@@ -11,5 +11,6 @@ router.use(authMiddleware);
 router.get("/", imageController.listByFolder);
 router.post("/upload", uploadImageMiddleware, imageController.upload);
 router.delete("/:imageId", imageController.deleteById);
+router.patch("/:imageId", imageController.renameImage);
 
 export default router;

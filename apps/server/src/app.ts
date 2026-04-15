@@ -8,7 +8,9 @@ import routes from "./routes";
 import { AppError } from "./utils/app-error";
 
 const app: express.Express = express();
-
+app.get("/", (req, res) => {
+  res.send("Express API is running");
+});
 app.use(morgan("tiny"));
 
 app.use(express.json({ limit: "100mb" }));
