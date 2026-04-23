@@ -106,3 +106,21 @@ export const renameImageRecord = async (
 
   return toImageDto(image);
 };
+
+export const searchImagesByQuery = async (
+  userId: string,
+  query: string
+): Promise<ImageFile[]> => {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    throw new AppError(400, "Search query is required", "INVALID_QUERY");
+  }
+
+  const uid = new mongoose.Types.ObjectId(userId);
+  const images = await ImageModel.find({
+    userId: uid,
+    name: { $regex: trimmed, $options: "i" },
+  }).sort({ createdAt: -1 });
+
+  return images.map((doc) => toImageDto(doc));
+};

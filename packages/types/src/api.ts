@@ -2,6 +2,9 @@ import type { Folder, FolderNode } from "./folder";
 import type { ImageFile } from "./image";
 import type { User } from "./user";
 
+export type FolderWithSize = Folder & {
+  size: number;
+};
 export interface GetTestResponse {
   message: string;
 }
@@ -27,8 +30,7 @@ export interface CreateFolderRequestBody {
 }
 
 export interface ListFoldersResponse {
-  folders: Folder[];
-  sizesByFolderId: Record<string, number>;
+  folders: FolderWithSize[];
 }
 
 export interface ListImagesQuery {

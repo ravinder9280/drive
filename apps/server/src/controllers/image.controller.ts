@@ -4,9 +4,13 @@ import { z } from "zod";
 import * as imageService from "../services/image.service";
 import { AppError } from "../utils/app-error";
 import { asyncHandler } from "../utils/async-handler";
+import { parse } from "node:path";
 
 const listQuery = z.object({
   folderId: z.string().min(1),
+});
+const searchQuery = z.object({
+  query: z.string().min(1),
 });
 
 export const listByFolder = asyncHandler(async (req: Request, res: Response) => {
@@ -67,6 +71,7 @@ export const deleteById = asyncHandler(async (req: Request, res: Response) => {
   await imageService.deleteImageRecord(userId, imageId);
   res.status(200).json({ message: "Image deleted" });
 });
+
 //rename image
 export const renameImage = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.userId;
@@ -83,4 +88,19 @@ export const renameImage = asyncHandler(async (req: Request, res: Response) => {
   }
   const image = await imageService.renameImageRecord(userId, imageId, name);
   res.status(200).json({ image });
+});
+
+
+
+export const searchByquery = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.userId;
+  if (!userId) {
+    throw new AppError(401, "Unauthorized");
+  }
+  const parsed = searchQuery.safeParse(req.query);
+  if (!parsed.success) {
+    throw new AppError(400, "folderId query is required");
+  }
+  const images = await imageService.searchImagesByQuery(userId, parsed.data.query);
+  res.json({ images });
 });

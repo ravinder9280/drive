@@ -8,6 +8,13 @@ export async function listImages(folderId: string): Promise<ImageFile[]> {
   });
   return data.images;
 }
+export const listByQuery = async (query: string): Promise<ImageFile[]> => {
+  if (!query.trim()) return []
+  const { data } = await api.get<{ images: ImageFile[] }>("/images/search", {
+    params: { query }, 
+  });
+  return data.images
+}
 
 export async function uploadImage(params: {
   folderId: string;

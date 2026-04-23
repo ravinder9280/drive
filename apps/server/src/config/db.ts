@@ -1,16 +1,48 @@
 import mongoose from "mongoose";
 
-const getMongoUri = (): string => {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    throw new Error("MONGODB_URI is not set");
-  }
-  return uri;
+const MONGODB_URI = process.env.MONGODB_URI as string;
+
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is not set");
+}
+
+// Extend global type
+declare global {
+  var mongooseConn: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
+// Initialize cache
+const globalCache = global.mongooseConn || {
+  conn: null,
+  promise: null,
 };
 
-export const connectDb = async (): Promise<void> => {
-  const uri = getMongoUri();
-  mongoose.set("strictQuery", true);
-  await mongoose.connect(uri);
-  console.log("MongoDB connected");
+global.mongooseConn = globalCache;
+
+export const connectDb = async (): Promise<typeof mongoose> => {
+  // If already connected → reuse
+  if (globalCache.conn) {
+    return globalCache.conn;
+  }
+
+  // If connection is in progress → reuse promise
+  if (!globalCache.promise) {
+    globalCache.promise = mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+    });
+  }
+
+  try {
+    globalCache.conn = await globalCache.promise;
+    console.log("✅ MongoDB connected");
+  } catch (error) {
+    globalCache.promise = null;
+    console.error("❌ MongoDB connection error:", error);
+    throw error;
+  }
+
+  return globalCache.conn;
 };

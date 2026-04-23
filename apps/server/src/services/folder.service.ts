@@ -91,19 +91,29 @@ export const listFoldersWithSizes = async (
   userId: string
 ): Promise<ListFoldersResponse> => {
   const uid = new mongoose.Types.ObjectId(userId);
+
   const folders = await FolderModel.find({ userId: uid }).lean();
   const images = await ImageModel.find({ userId: uid }).lean();
 
   const folderDtos = folders.map(toFolderDtoLean);
+
   const sizesByFolderId = calculateFolderSize(
     folders.map((f) => ({
       _id: f._id.toString(),
       parentId: f.parentId ? f.parentId.toString() : null,
     })),
-    images.map((i) => ({ folderId: i.folderId.toString(), size: i.size }))
+    images.map((i) => ({
+      folderId: i.folderId.toString(),
+      size: i.size,
+    }))
   );
 
-  return { folders: folderDtos, sizesByFolderId };
+  const foldersWithSize = folderDtos.map((f) => ({
+    ...f,
+    size: sizesByFolderId[f._id] ?? 0,
+  }));
+
+  return { folders: foldersWithSize };
 };
 
 export const getFolderTree = async (userId: string): Promise<FolderNode[]> => {

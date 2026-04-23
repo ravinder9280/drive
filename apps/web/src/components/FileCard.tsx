@@ -21,8 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@monorepo/ui/components/dropdown-menu";
 import { Input } from "@monorepo/ui/components/input";
+import {  toast } from 'sonner';
 import axios from "axios";
-import { DownloadIcon, EllipsisVerticalIcon, EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { DownloadIcon, EllipsisVerticalIcon, EyeIcon, File, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
 import * as imageApi from "@/services/image.api";
@@ -41,10 +42,12 @@ function formatBytes(bytes: number): string {
 
 export function FileCard({
   image,
-  onDeleted,
+  onImageUpdated,
+  view="grid"
 }: {
   image: ImageFile;
-  onDeleted?: () => void;
+  onImageUpdated?: () => void;
+  view:"grid"|"list"
 }) {
   const src = imageApi.imageUrlToAbsolute(image.url);
   const [open, setOpen] = useState(false);
@@ -80,12 +83,14 @@ export function FileCard({
     try {
       await imageApi.deleteImage(image._id);
       setConfirmOpen(false);
-      onDeleted?.();
+      onImageUpdated?.();
+      toast.success("Image Deleted Successfully")
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
         : "Failed to delete image";
-      window.alert(message);
+        toast.success(message||"Some Error Occured")
+
     } finally {
       setIsDeleting(false);
     }
@@ -99,19 +104,22 @@ export function FileCard({
   const submitRename = async (): Promise<void> => {
     const nextName = renameValue.trim();
     if (!nextName) {
-      window.alert("Name is required");
+      toast.warning("Name is Required")
       return;
     }
     setIsRenaming(true);
     try {
       await imageApi.renameImage(image._id, nextName);
       setRenameOpen(false);
-      onDeleted?.();
+      onImageUpdated?.();
+      toast.success("Image Renamed Successfully")
+
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
         : "Failed to rename image";
-      window.alert(message);
+        toast.success(message||"Some Error Occured")
+
     } finally {
       setIsRenaming(false);
     }
@@ -119,7 +127,49 @@ export function FileCard({
 
   return (
     <>
-      <Card className="overflow-hidden py-0 gap-0">
+    {view=="list"?(
+
+      <div className="  px-1  flex items-center justify-between gap-2  hover:bg-muted/50">
+        <div onClick={()=>setOpen(true)} className="flex-1 cursor-pointer h-full flex items-center gap-4 ">
+          <File className="size-5 text-muted-foreground"/>
+          <span className="line-clamp-1 text-muted-foreground  flex-1">{image.name}</span>
+
+        </div>
+        <div className="py-2 ">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="cursor-pointer" size="icon">
+                <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="bottom" align="start" className="w-56">
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => setOpen(true)}>
+                  <EyeIcon className="size-4" /> Open
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownload}>
+                  <DownloadIcon className="size-4" /> Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleRename}>
+                  <PencilIcon className="size-4" /> Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={() => setConfirmOpen(true)}
+                >
+                  <TrashIcon className="size-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+
+        </div>
+
+      </div>
+    ):
+
+      <Card className="overflow-hidden py-0  gap-0">
         <CardContent className="p-0 aspect-square relative bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API origin */}
           <img
@@ -128,9 +178,8 @@ export function FileCard({
             alt={image.name}
             className="absolute inset-0 cursor-pointer size-full object-cover"
           />
-          <ImageModal image={image} open={open} setOpen={setOpen} />
         </CardContent>
-        <CardFooter className="p-3 pr-1 flex items-center gap-2 justify-between">
+        <CardFooter className="p-3 pr-1 border-t flex items-center gap-2 justify-between">
           <div className="flex flex-col gap-1 flex-1 min-w-0">
             <p className="text-sm font-medium truncate" title={image.name}>
               {image.name}
@@ -149,7 +198,7 @@ export function FileCard({
             <DropdownMenuContent side="bottom" align="start" className="w-56">
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setOpen(true)}>
-                  <EyeIcon className="size-4" /> View
+                  <EyeIcon className="size-4" /> Open
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDownload}>
                   <DownloadIcon className="size-4" /> Download
@@ -168,6 +217,9 @@ export function FileCard({
           </DropdownMenu>
         </CardFooter>
       </Card>
+    }
+              <ImageModal image={image} open={open} setOpen={setOpen} />
+
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>

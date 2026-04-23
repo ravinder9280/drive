@@ -8,7 +8,6 @@ import { Button } from "@monorepo/ui/components/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -16,6 +15,7 @@ import {
 import { Input } from "@monorepo/ui/components/input";
 
 import * as imageApi from "@/services/image.api";
+import { toast } from "sonner";
 
 interface UploadModalProps {
   open: boolean;
@@ -34,14 +34,12 @@ export function UploadModal({
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const reset = useCallback(() => {
     setFile(null);
     setName("");
     setIsDragging(false);
-    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -50,7 +48,6 @@ export function UploadModal({
   const setSelectedFile = useCallback(
     (nextFile: File | null) => {
       setFile(nextFile);
-      setError(null);
       if (nextFile && !name) {
         setName(nextFile.name);
       }
@@ -105,11 +102,10 @@ export function UploadModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!folderId || !file) {
-      setError("Choose a folder and a file.");
+      toast.error("Choose a folder and a file.");
       return;
     }
     setSubmitting(true);
-    setError(null);
     try {
       await imageApi.uploadImage({
         folderId,
@@ -119,11 +115,12 @@ export function UploadModal({
       reset();
       onOpenChange(false);
       onUploaded();
+      toast.success("Image Uploaded Successfully")
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data as { message?: string })?.message ?? err.message
         : "Upload failed";
-      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -145,7 +142,7 @@ export function UploadModal({
                 onDrop={handleDrop}
                 className={`relative flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 py-16 transition-colors ${isDragging
                   ? "border-zinc-400 bg-muted/90"
-                  : "border-zinc-300 hover:border-zinc-400 bg-muted/50"
+                  : "border-zinc-300 hover:border-zinc-400 bg-muted dark:bg-muted/50"
                   }`}
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -192,11 +189,7 @@ export function UploadModal({
                 placeholder="Optional"
               />
             </div>
-            {error ? (
-              <p className="text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            ) : null}
+            
           </div>
           <DialogFooter>
             <Button

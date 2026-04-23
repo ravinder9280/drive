@@ -9,6 +9,7 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get("/", imageController.listByFolder);
+router.get("/search", imageController.searchByquery);
 router.post("/upload", uploadImageMiddleware, imageController.upload);
 router.delete("/:imageId", imageController.deleteById);
 router.patch("/:imageId", imageController.renameImage);

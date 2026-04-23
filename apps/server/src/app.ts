@@ -18,7 +18,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000","https://drive-web-fawn.vercel.app"],
+    origin: ["http://localhost:3000","https://drive-web-fawn.vercel.app","http://localhost:3002"],
   })
 );
 

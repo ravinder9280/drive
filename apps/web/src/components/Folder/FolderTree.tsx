@@ -1,80 +1,82 @@
 "use client";
 
-import type { Folder } from "@monorepo/types";
-import { FolderIcon } from "lucide-react";
+import type { Folder, FolderWithSize } from "@monorepo/types";
+import { ChevronDown, FolderIcon } from "lucide-react";
 import { useMemo } from "react";
 
 import { Button } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/utils/styles";
-import {  formatBytes } from "@/lib/common";
+import { formatBytes } from "@/lib/common";
+import Link from "next/link";
 
-function buildChildrenMap(folders: Folder[]): Map<string | null, Folder[]> {
-  const map = new Map<string | null, Folder[]>();
+function buildChildrenMap(
+  folders: FolderWithSize[]
+): Map<string | null, FolderWithSize[]> {
+  const map = new Map<string | null, FolderWithSize[]>();
+
   for (const f of folders) {
     const key = f.parentId;
     const list = map.get(key) ?? [];
     list.push(f);
     map.set(key, list);
   }
+
   for (const [, list] of map) {
     list.sort((a, b) => a.name.localeCompare(b.name));
   }
+
   return map;
 }
-
 interface FolderTreeProps {
-  folders: Folder[];
-  sizesByFolderId: Record<string, number>;
+  folders: FolderWithSize[];
   selectedId: string | null;
-  onSelect: (folderId: string) => void;
 }
 
 function FolderTreeNode({
   folder,
   depth,
   childrenMap,
-  sizesByFolderId,
   selectedId,
-  onSelect,
 }: {
-  folder: Folder;
+  folder: FolderWithSize;
   depth: number;
-  childrenMap: Map<string | null, Folder[]>;
-  sizesByFolderId: Record<string, number>;
+  childrenMap: Map<string | null, FolderWithSize[]>;
   selectedId: string | null;
-  onSelect: (folderId: string) => void;
 }) {
   const children = childrenMap.get(folder._id) ?? [];
-  const total = sizesByFolderId[folder._id] ?? 0;
   const isSelected = selectedId === folder._id;
 
   return (
     <div className="select-none">
+      <Link href={`/dashboard/folder/${folder._id}`}>
       <Button
         type="button"
+        size={'lg'}
         variant={isSelected ? "secondary" : "ghost"}
         className={cn(
-          "h-auto w-full cursor-pointer justify-start gap-2 py-1.5 px-2 font-normal",
+          " w-full  justify-start gap-2 pr-2 ",
           isSelected && "bg-blue-400/40 hover:bg-blue-400/40"
         )}
         style={{ paddingLeft: `${8 + depth * 14}px` }}
-        onClick={() => onSelect(folder._id)}
       >
+        <div className="flex items-center gap-1 ">
+
+        <ChevronDown  className="h-2 w-2 text-muted-foreground"/>
         <FolderIcon className="size-4 shrink-0 text-muted-foreground" />
-        <span className="truncate  flex-1 text-left">{folder.name}</span>
+        </div>
+        <span className="truncate text-base  flex-1 text-left">{folder.name}</span>
         <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-          {formatBytes(total)}
+          {formatBytes(folder.size)}
         </span>
       </Button>
+        </Link>
       {children.map((child) => (
         <FolderTreeNode
           key={child._id}
           folder={child}
           depth={depth + 1}
           childrenMap={childrenMap}
-          sizesByFolderId={sizesByFolderId}
           selectedId={selectedId}
-          onSelect={onSelect}
         />
       ))}
     </div>
@@ -83,9 +85,7 @@ function FolderTreeNode({
 
 export function FolderTree({
   folders,
-  sizesByFolderId,
   selectedId,
-  onSelect,
 }: FolderTreeProps) {
   const childrenMap = useMemo(() => buildChildrenMap(folders), [folders]);
   const roots = childrenMap.get(null) ?? [];
@@ -106,9 +106,7 @@ export function FolderTree({
           folder={folder}
           depth={0}
           childrenMap={childrenMap}
-          sizesByFolderId={sizesByFolderId}
           selectedId={selectedId}
-          onSelect={onSelect}
         />
       ))}
     </div>
