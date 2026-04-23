@@ -2,8 +2,8 @@ import FolderClient from "./_components/FolderClient";
 
 
 const FolderPage = async ({ params }: { params: { id?: string } }) => {
-  const id = params.id || null;
-  return <FolderClient id={id} />;
+  const {id} = await params;
+  return <FolderClient id={id||null} />;
 };
 
 export default FolderPage;
