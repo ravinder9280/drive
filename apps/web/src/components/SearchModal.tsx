@@ -32,32 +32,30 @@ const SearchModal = () => {
 
   const [isItemSelected, setIsItemSelected] = useState(false)
 
-const handleSelect = (img: ImageFile) => {
-  setIsItemSelected(true)
-  setSelectedImage(img)
-  setInputValue('')        
-  setModalOpen(true)
-}
-
-const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (e.key === 'Enter' && !isItemSelected && inputValue.trim()) {
-    router.push(`/dashboard/search?query=${encodeURIComponent(inputValue.trim())}`)
+  const handleSelect = (img: ImageFile) => {
+    setIsItemSelected(true)
+    setSelectedImage(img)
+    setInputValue('')
+    setModalOpen(true)
   }
-  setIsItemSelected(false)
-}
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isItemSelected && inputValue.trim()) {
+      router.push(`/dashboard/search?query=${encodeURIComponent(inputValue.trim())}`)
+    }
+    setIsItemSelected(false)
+  }
 
   return (
     <>
       <div className="max-w-2xl w-full relative">
-        <Combobox
+        <Combobox<ImageFile>
           items={results}
           itemToStringValue={(img) => img.name}
           onInputValueChange={setInputValue}
           onValueChange={(img) => img && handleSelect(img as ImageFile)}
-          filterItems={() => true}
+          filteredItems={results}
           inputValue={inputValue}                  // controlled input
-          shouldResetInputOnSelect={false}         // don't fill input on select
-          resetInputOnSelect={false}  
         >
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
@@ -73,16 +71,16 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
               onKeyDown={handleKeyDown}
               showClear={true}
               showTrigger={false}
-              
+
             />
           </div>
 
           <ComboboxContent className="max-w-2xl ">
-            {results.length==0 &&debouncedQuery &&
+            {results.length == 0 && debouncedQuery &&
 
-            <ComboboxEmpty>
-              {debouncedQuery.trim() ? 'No images found.' : ''}
-            </ComboboxEmpty>
+              <ComboboxEmpty>
+                {debouncedQuery.trim() ? 'No images found.' : ''}
+              </ComboboxEmpty>
             }
             <ComboboxList className="w-full">
               {(img: ImageFile) => (

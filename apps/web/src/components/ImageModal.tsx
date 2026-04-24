@@ -20,7 +20,7 @@ export default function ImageModal({ image, open, setOpen }: { image: ImageFile,
             <X className="text-muted-foreground size-6 "/>
           </DialogClose>
         </div>
-        <div className="flex flex-1 p-4 items-center h-full w-full pb-12 justify-center">
+        <div className="flex flex-1 p-4 items-center h-full w-full max-h-[100%] pb-12 justify-center">
           <img
             src={imageApi.imageUrlToAbsolute(image.url)}
             alt={image.name}

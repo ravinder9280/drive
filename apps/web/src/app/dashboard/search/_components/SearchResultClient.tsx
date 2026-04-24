@@ -13,7 +13,7 @@ const SearchResultClient = ({ query }: { query: string }) => {
         queryFn: () => listByQuery(query),
     })
     const queryClient = useQueryClient();
-    const view=localStorage.getItem("view")=="list"?"list":"grid"
+    const view = localStorage.getItem("view") == "list" ? "list" : "grid"
 
 
 
@@ -33,7 +33,7 @@ const SearchResultClient = ({ query }: { query: string }) => {
             <div className="flex flex-col items-center gap-2 justify-center h-full">
                 <Image src="/empty-folder.svg" alt="Empty folder" width={200} height={200} />
                 <p className="text-muted-foreground">
-                    No images in this folder yet.
+                    No images found.
                 </p>
             </div>
 
@@ -41,40 +41,40 @@ const SearchResultClient = ({ query }: { query: string }) => {
     }
 
     return (
-        
-            <div>
-        <div className="border-b px-6 h-16 flex flex-wrap items-center sticky top-0 justify-between gap-3">
+
+        <div>
+            <div className="border-b px-6 h-16 flex flex-wrap items-center sticky top-0 justify-between gap-3">
 
                 <h3>
-                  Search Results For  "{query}""
+                    Search Results For  "{query}"
                 </h3>
             </div>
 
-        <div className=" overflow-scroll flex-1 p-6">
-            <div
-                className={cn(
-                    "grid ",
-                    view != "list"
-                        ? " grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-                        : "divide-y border-y"
-                )}
-            >
-                {results.map((img) => (
-                    <FileCard
-                        view={view}
-                        key={img._id}
-                        image={img}
-                        onImageUpdated={() => {
-                            
-                            queryClient.invalidateQueries({
-                                queryKey: ["image-search"],
-                            });
-                        }}
+            <div className=" overflow-scroll flex-1 p-6">
+                <div
+                    className={cn(
+                        "grid ",
+                        view != "list"
+                            ? " grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                            : "divide-y border-y"
+                    )}
+                >
+                    {results.map((img) => (
+                        <FileCard
+                            view={view}
+                            key={img._id}
+                            image={img}
+                            onImageUpdated={() => {
 
-                    />
-                ))}
+                                queryClient.invalidateQueries({
+                                    queryKey: ["image-search"],
+                                });
+                            }}
+
+                        />
+                    ))}
+                </div>
             </div>
-                                </div>
 
         </div>
     )

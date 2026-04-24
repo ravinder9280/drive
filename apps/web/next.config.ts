@@ -9,6 +9,7 @@ const monorepoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..
 const nextConfig: NextConfig = {
   transpilePackages: ["@monorepo/ui","@monorepo/types"],
   outputFileTracingRoot: monorepoRoot,
+  
   webpack: (config) => {
     config.watchOptions = {
       ignored: [

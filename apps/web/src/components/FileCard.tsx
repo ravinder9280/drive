@@ -195,7 +195,7 @@ export function FileCard({
                 <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="start" className="w-56">
+            <DropdownMenuContent side="bottom" align="start" className="w-40 md:w-56">
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setOpen(true)}>
                   <EyeIcon className="size-4" /> Open
