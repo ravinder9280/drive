@@ -52,3 +52,4 @@ apps/server/uploads
 /test-results/
 /playwright-report/
 /playwright/.cache/
+.cursor
