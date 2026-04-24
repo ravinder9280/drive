@@ -41,7 +41,7 @@ next-env.d.ts
 
 # intellij
 .idea
-
+.cursor
 dist/**
 /dist
 packages/*/dist
