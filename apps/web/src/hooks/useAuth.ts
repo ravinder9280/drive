@@ -9,7 +9,7 @@ export function useAuth() {
   const state = useSyncExternalStore(
     authStore.subscribe,
     getAuthSnapshot,
-    getServerAuthSnapshot
+    getServerAuthSnapshot,
   );
 
   const logout = useCallback(() => {

@@ -1,6 +1,6 @@
 export interface FolderSizeEdge {
   _id: string;
-  parentId: string | null;
+  parentId: null | string;
 }
 
 export interface ImageSizeRow {
@@ -13,7 +13,7 @@ export interface ImageSizeRow {
  */
 export function calculateFolderSize(
   folders: FolderSizeEdge[],
-  images: ImageSizeRow[]
+  images: ImageSizeRow[],
 ): Record<string, number> {
   const childrenMap = new Map<string, string[]>();
   const directBytes = new Map<string, number>();
@@ -31,7 +31,10 @@ export function calculateFolderSize(
   }
 
   for (const img of images) {
-    directBytes.set(img.folderId, (directBytes.get(img.folderId) ?? 0) + img.size);
+    directBytes.set(
+      img.folderId,
+      (directBytes.get(img.folderId) ?? 0) + img.size,
+    );
   }
 
   const memo = new Map<string, number>();

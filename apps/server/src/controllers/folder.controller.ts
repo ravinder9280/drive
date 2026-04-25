@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+
 import { z } from "zod";
 
 import * as folderService from "../services/folder.service";
@@ -26,7 +27,7 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   const folder = await folderService.createFolder(
     userId,
     parsed.data.name,
-    parentId
+    parentId,
   );
   res.status(201).json({ folder });
 });

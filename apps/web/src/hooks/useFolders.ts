@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import * as folderApi from "@/services/folder.api";
 
 export function useFolders(options?: { enabled?: boolean }) {
@@ -8,9 +9,9 @@ export function useFolders(options?: { enabled?: boolean }) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["folders"],
-    queryFn: folderApi.listFolders,
     enabled,
+    queryFn: folderApi.listFolders,
+    queryKey: ["folders"],
     staleTime: 1000 * 60 * 5, // 5 min cache
   });
 
@@ -20,7 +21,7 @@ export function useFolders(options?: { enabled?: boolean }) {
       parentId,
     }: {
       name: string;
-      parentId: string | null;
+      parentId: null | string;
     }) => folderApi.createFolder({ name, parentId }),
 
     onSuccess: () => {
@@ -29,13 +30,12 @@ export function useFolders(options?: { enabled?: boolean }) {
   });
 
   return {
-    folders: query.data?.folders ?? [],
-    loading: query.isLoading,
-    error: query.error ? "Failed to load folders" : null,
-
-    refresh: () =>
-      queryClient.invalidateQueries({ queryKey: ["folders"] }),
-
     createFolder: mutation.mutateAsync,
+    error: query.error ? "Failed to load folders" : null,
+    folders: query.data?.folders ?? [],
+
+    loading: query.isLoading,
+
+    refresh: () => queryClient.invalidateQueries({ queryKey: ["folders"] }),
   };
 }

@@ -1,10 +1,11 @@
 import type { AuthResponse, User } from "@monorepo/types";
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-import { AppError } from "../utils/app-error";
 import { type UserDocument, UserModel } from "../models/user.model";
+import { AppError } from "../utils/app-error";
 
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRES = "7d";
@@ -19,8 +20,8 @@ const getJwtSecret = (): string => {
 
 const toUserDto = (doc: UserDocument): User => ({
   _id: doc._id.toString(),
-  email: doc.email,
   createdAt: doc.createdAt.toISOString(),
+  email: doc.email,
 });
 
 const signToken = (userId: string): string =>
@@ -28,7 +29,7 @@ const signToken = (userId: string): string =>
 
 export const signup = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResponse> => {
   const existing = await UserModel.findOne({ email }).lean();
   if (existing) {
@@ -40,14 +41,14 @@ export const signup = async (
 
   const doc = user.toObject() as UserDocument;
   return {
-    user: toUserDto(doc),
     token: signToken(doc._id.toString()),
+    user: toUserDto(doc),
   };
 };
 
 export const login = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResponse> => {
   const user = await UserModel.findOne({ email }).select("+passwordHash");
   if (!user) {
@@ -62,8 +63,8 @@ export const login = async (
 
   const doc = user.toObject() as UserDocument;
   return {
-    user: toUserDto(doc),
     token: signToken(doc._id.toString()),
+    user: toUserDto(doc),
   };
 };
 

@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
+
 import { z } from "zod";
 
 import * as imageService from "../services/image.service";
 import { AppError } from "../utils/app-error";
 import { asyncHandler } from "../utils/async-handler";
-import { parse } from "node:path";
 
 const listQuery = z.object({
   folderId: z.string().min(1),
@@ -13,18 +13,23 @@ const searchQuery = z.object({
   query: z.string().min(1),
 });
 
-export const listByFolder = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.userId;
-  if (!userId) {
-    throw new AppError(401, "Unauthorized");
-  }
-  const parsed = listQuery.safeParse(req.query);
-  if (!parsed.success) {
-    throw new AppError(400, "folderId query is required");
-  }
-  const images = await imageService.listImagesInFolder(userId, parsed.data.folderId);
-  res.json({ images });
-});
+export const listByFolder = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.userId;
+    if (!userId) {
+      throw new AppError(401, "Unauthorized");
+    }
+    const parsed = listQuery.safeParse(req.query);
+    if (!parsed.success) {
+      throw new AppError(400, "folderId query is required");
+    }
+    const images = await imageService.listImagesInFolder(
+      userId,
+      parsed.data.folderId,
+    );
+    res.json({ images });
+  },
+);
 
 export const upload = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.userId;
@@ -49,11 +54,11 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
 
   const publicUrl = `/uploads/${file.filename}`;
   const image = await imageService.createImageRecord({
-    userId,
     folderId,
     name,
-    url: publicUrl,
     size: file.size,
+    url: publicUrl,
+    userId,
   });
 
   res.status(201).json({ image });
@@ -90,17 +95,20 @@ export const renameImage = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ image });
 });
 
-
-
-export const searchByquery = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.userId;
-  if (!userId) {
-    throw new AppError(401, "Unauthorized");
-  }
-  const parsed = searchQuery.safeParse(req.query);
-  if (!parsed.success) {
-    throw new AppError(400, "folderId query is required");
-  }
-  const images = await imageService.searchImagesByQuery(userId, parsed.data.query);
-  res.json({ images });
-});
+export const searchByquery = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.userId;
+    if (!userId) {
+      throw new AppError(401, "Unauthorized");
+    }
+    const parsed = searchQuery.safeParse(req.query);
+    if (!parsed.success) {
+      throw new AppError(400, "folderId query is required");
+    }
+    const images = await imageService.searchImagesByQuery(
+      userId,
+      parsed.data.query,
+    );
+    res.json({ images });
+  },
+);

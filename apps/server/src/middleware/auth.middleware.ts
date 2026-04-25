@@ -6,7 +6,7 @@ import { AppError } from "../utils/app-error";
 export const authMiddleware = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {

@@ -12,13 +12,13 @@ import {
  * Thin facade over localStorage auth helpers for components that prefer a store-like API.
  */
 export const authStore = {
+  clearAuth(): void {
+    clearAuthStorage();
+  },
   getToken,
   getUser,
   setAuth(token: string, user: User): void {
     setAuthStorage(token, user);
-  },
-  clearAuth(): void {
-    clearAuthStorage();
   },
   subscribe(listener: () => void): () => void {
     if (typeof window === "undefined") {

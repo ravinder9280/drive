@@ -1,6 +1,7 @@
 "use client";
 
 import type { ImageFile } from "@monorepo/types";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,33 +22,30 @@ import {
   DropdownMenuTrigger,
 } from "@monorepo/ui/components/dropdown-menu";
 import { Input } from "@monorepo/ui/components/input";
-import {  toast } from 'sonner';
 import axios from "axios";
-import { DownloadIcon, EllipsisVerticalIcon, EyeIcon, File, PencilIcon, TrashIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  EllipsisVerticalIcon,
+  EyeIcon,
+  File,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import * as imageApi from "@/services/image.api";
-import ImageModal from "./ImageModal";
 
-function formatBytes(bytes: number): string {
-  if (bytes === 0) {
-    return "0 B";
-  }
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const value = bytes / k ** i;
-  return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${sizes[i]}`;
-}
+import ImageModal from "./ImageModal";
 
 export function FileCard({
   image,
   onImageUpdated,
-  view="grid"
+  view = "grid",
 }: {
   image: ImageFile;
   onImageUpdated?: () => void;
-  view:"grid"|"list"
+  view: "grid" | "list";
 }) {
   const src = imageApi.imageUrlToAbsolute(image.url);
   const [open, setOpen] = useState(false);
@@ -84,13 +82,13 @@ export function FileCard({
       await imageApi.deleteImage(image._id);
       setConfirmOpen(false);
       onImageUpdated?.();
-      toast.success("Image Deleted Successfully")
+      toast.success("Image Deleted Successfully");
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
+        ? ((err.response?.data as undefined | { message?: string })?.message ??
+          err.message)
         : "Failed to delete image";
-        toast.success(message||"Some Error Occured")
-
+      toast.success(message || "Some Error Occured");
     } finally {
       setIsDeleting(false);
     }
@@ -104,7 +102,7 @@ export function FileCard({
   const submitRename = async (): Promise<void> => {
     const nextName = renameValue.trim();
     if (!nextName) {
-      toast.warning("Name is Required")
+      toast.warning("Name is Required");
       return;
     }
     setIsRenaming(true);
@@ -112,14 +110,13 @@ export function FileCard({
       await imageApi.renameImage(image._id, nextName);
       setRenameOpen(false);
       onImageUpdated?.();
-      toast.success("Image Renamed Successfully")
-
+      toast.success("Image Renamed Successfully");
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data as { message?: string } | undefined)?.message ?? err.message
+        ? ((err.response?.data as undefined | { message?: string })?.message ??
+          err.message)
         : "Failed to rename image";
-        toast.success(message||"Some Error Occured")
-
+      toast.success(message || "Some Error Occured");
     } finally {
       setIsRenaming(false);
     }
@@ -127,101 +124,103 @@ export function FileCard({
 
   return (
     <>
-    {view=="list"?(
-
-      <div className="  px-1  flex items-center justify-between gap-2  hover:bg-muted/50">
-        <div onClick={()=>setOpen(true)} className="flex-1 cursor-pointer h-full flex items-center gap-4 ">
-          <File className="size-5 text-muted-foreground"/>
-          <span className="line-clamp-1 text-muted-foreground  flex-1">{image.name}</span>
-
-        </div>
-        <div className="py-2 ">
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="cursor-pointer" size="icon">
-                <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="start" className="w-56">
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => setOpen(true)}>
-                  <EyeIcon className="size-4" /> Open
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownload}>
-                  <DownloadIcon className="size-4" /> Download
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleRename}>
-                  <PencilIcon className="size-4" /> Rename
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-500"
-                  onClick={() => setConfirmOpen(true)}
-                >
-                  <TrashIcon className="size-4" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-
-        </div>
-
-      </div>
-    ):
-
-      <Card className="overflow-hidden py-0  gap-0">
-        <CardContent className="p-0 aspect-square relative bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API origin */}
-          <img
-            src={src}
+      {view == "list" ? (
+        <div className="  px-1  flex items-center justify-between gap-2  hover:bg-muted/50">
+          <div
+            className="flex-1 cursor-pointer h-full flex items-center gap-4 "
             onClick={() => setOpen(true)}
-            alt={image.name}
-            className="absolute inset-0 cursor-pointer size-full object-cover"
-          />
-        </CardContent>
-        <CardFooter className="p-3 pr-1 border-t flex items-center gap-2 justify-between">
-          <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" title={image.name}>
+          >
+            <File className="size-5 text-muted-foreground" />
+            <span className="line-clamp-1 text-muted-foreground  flex-1">
               {image.name}
-            </p>
-            <p className="text-xs text-muted-foreground tabular-nums">
-              {formatBytes(image.size)}
-            </p>
+            </span>
           </div>
+          <div className="py-2 ">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="cursor-pointer" size="icon" variant="ghost">
+                  <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56" side="bottom">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => setOpen(true)}>
+                    <EyeIcon className="size-4" /> Open
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownload}>
+                    <DownloadIcon className="size-4" /> Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleRename}>
+                    <PencilIcon className="size-4" /> Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() => setConfirmOpen(true)}
+                  >
+                    <TrashIcon className="size-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      ) : (
+        <Card className="overflow-hidden py-0  gap-0">
+          <CardContent className="p-0 aspect-square relative bg-muted">
+            {}
+            <img
+              alt={image.name}
+              className="absolute inset-0 cursor-pointer size-full object-cover"
+              onClick={() => setOpen(true)}
+              src={src}
+            />
+          </CardContent>
+          <CardFooter className="p-3 pr-1 border-t flex items-center gap-2 justify-between">
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <p className="text-sm font-medium truncate" title={image.name}>
+                {image.name}
+              </p>
+              <p className="text-xs text-muted-foreground tabular-nums">
+                {formatBytes(image.size)}
+              </p>
+            </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="cursor-pointer" size="icon">
-                <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="start" className="w-40 md:w-56">
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => setOpen(true)}>
-                  <EyeIcon className="size-4" /> Open
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownload}>
-                  <DownloadIcon className="size-4" /> Download
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleRename}>
-                  <PencilIcon className="size-4" /> Rename
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-500"
-                  onClick={() => setConfirmOpen(true)}
-                >
-                  <TrashIcon className="size-4" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardFooter>
-      </Card>
-    }
-              <ImageModal image={image} open={open} setOpen={setOpen} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="cursor-pointer" size="icon" variant="ghost">
+                  <EllipsisVerticalIcon className="size-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-40 md:w-56"
+                side="bottom"
+              >
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => setOpen(true)}>
+                    <EyeIcon className="size-4" /> Open
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownload}>
+                    <DownloadIcon className="size-4" /> Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleRename}>
+                    <PencilIcon className="size-4" /> Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() => setConfirmOpen(true)}
+                  >
+                    <TrashIcon className="size-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardFooter>
+        </Card>
+      )}
+      <ImageModal image={image} open={open} setOpen={setOpen} />
 
-
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete image?</AlertDialogTitle>
@@ -233,11 +232,11 @@ export function FileCard({
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-500 hover:bg-red-500/90"
+              disabled={isDeleting}
               onClick={(e) => {
                 e.preventDefault();
                 void handleDelete();
               }}
-              disabled={isDeleting}
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
@@ -245,7 +244,7 @@ export function FileCard({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={renameOpen} onOpenChange={setRenameOpen}>
+      <AlertDialog onOpenChange={setRenameOpen} open={renameOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Rename image</AlertDialogTitle>
@@ -254,22 +253,20 @@ export function FileCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
-            value={renameValue}
             autoFocus
-            
-
+            disabled={isRenaming}
             onChange={(e) => setRenameValue(e.target.value)}
             placeholder="Enter image name"
-            disabled={isRenaming}
+            value={renameValue}
           />
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isRenaming}>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              disabled={isRenaming}
               onClick={(e) => {
                 e.preventDefault();
                 void submitRename();
               }}
-              disabled={isRenaming}
             >
               {isRenaming ? "Saving..." : "Save"}
             </AlertDialogAction>
@@ -278,4 +275,15 @@ export function FileCard({
       </AlertDialog>
     </>
   );
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) {
+    return "0 B";
+  }
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const value = bytes / k ** i;
+  return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${sizes[i]}`;
 }

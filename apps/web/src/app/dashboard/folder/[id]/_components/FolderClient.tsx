@@ -1,28 +1,29 @@
-'use client'
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import SubNavbar from '@/components/Navbar/SubNavbar';
-import FileList from './FileList';
+"use client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
- export type ViewType = 'grid' | 'list';
+import SubNavbar from "@/components/Navbar/SubNavbar";
 
-const FolderClient = ({ id }: { id: string | null }) => {
+import FileList from "./FileList";
 
-  const [view, setView] = useState<ViewType>(
-    () => (localStorage.getItem('view') === 'list' ? 'list' : 'grid')
+export type ViewType = "grid" | "list";
+
+const FolderClient = ({ id }: { id: null | string }) => {
+  const [view, setView] = useState<ViewType>(() =>
+    localStorage.getItem("view") === "list" ? "list" : "grid",
   );
-  
+
   const queryClient = useQueryClient();
 
   return (
     <>
       <SubNavbar
-        selectedId={id}
-        view={view}
-        setView={setView}
         onUploaded={() => {
-          queryClient.invalidateQueries({ queryKey: ['folder-images', id] });
+          queryClient.invalidateQueries({ queryKey: ["folder-images", id] });
         }}
+        selectedId={id}
+        setView={setView}
+        view={view}
       />
       <FileList folderId={id} view={view} />
     </>

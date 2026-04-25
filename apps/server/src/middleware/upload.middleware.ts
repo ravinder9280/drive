@@ -1,8 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import multer from "multer";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 import { AppError } from "../utils/app-error";
 
@@ -10,11 +9,11 @@ const UPLOAD_SUBDIR = "uploads";
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 
 const allowedMime = new Set([
+  "image/gif",
   "image/jpeg",
   "image/png",
-  "image/gif",
-  "image/webp",
   "image/svg+xml",
+  "image/webp",
 ]);
 
 export const getUploadsDir = (): string =>
@@ -47,7 +46,7 @@ const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
 };
 
 export const uploadImageMiddleware = multer({
-  storage,
-  limits: { fileSize: MAX_FILE_BYTES },
   fileFilter,
+  limits: { fileSize: MAX_FILE_BYTES },
+  storage,
 }).single("image");

@@ -9,17 +9,38 @@ export async function listImages(folderId: string): Promise<ImageFile[]> {
   return data.images;
 }
 export const listByQuery = async (query: string): Promise<ImageFile[]> => {
-  if (!query.trim()) return []
+  if (!query.trim()) return [];
   const { data } = await api.get<{ images: ImageFile[] }>("/images/search", {
-    params: { query }, 
+    params: { query },
   });
-  return data.images
+  return data.images;
+};
+
+export async function deleteImage(imageId: string): Promise<void> {
+  await api.delete(`/images/${imageId}`);
+}
+
+export function imageUrlToAbsolute(url: string): string {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return `${getApiOrigin()}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+export async function renameImage(
+  imageId: string,
+  name: string,
+): Promise<ImageFile> {
+  const { data } = await api.patch<{ image: ImageFile }>(`/images/${imageId}`, {
+    name,
+  });
+  return data.image;
 }
 
 export async function uploadImage(params: {
+  file: File;
   folderId: string;
   name?: string;
-  file: File;
 }): Promise<ImageFile> {
   const formData = new FormData();
   formData.append("folderId", params.folderId);
@@ -30,25 +51,7 @@ export async function uploadImage(params: {
 
   const { data } = await api.post<{ image: ImageFile }>(
     "/images/upload",
-    formData
+    formData,
   );
   return data.image;
-}
-
-export async function deleteImage(imageId: string): Promise<void> {
-  await api.delete(`/images/${imageId}`);
-}
-
-export async function renameImage(imageId: string, name: string): Promise<ImageFile> {
-  const { data } = await api.patch<{ image: ImageFile }>(`/images/${imageId}`, {
-    name,
-  });
-  return data.image;
-}
-
-export function imageUrlToAbsolute(url: string): string {
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-  return `${getApiOrigin()}${url.startsWith("/") ? "" : "/"}${url}`;
 }

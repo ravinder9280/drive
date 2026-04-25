@@ -33,7 +33,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const status = axios.isAxiosError(error)
+      ? error.response?.status
+      : undefined;
     if (status === 401 && typeof window !== "undefined") {
       clearAuth();
       const path = window.location.pathname;
@@ -42,5 +44,5 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );

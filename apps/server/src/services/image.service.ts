@@ -1,57 +1,57 @@
+import type { ImageFile } from "@monorepo/types";
+
+import mongoose from "mongoose";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { ImageFile } from "@monorepo/types";
-import mongoose from "mongoose";
-
-import { ImageModel, type ImageDocument } from "../models/image.model";
+import { type ImageDocument, ImageModel } from "../models/image.model";
 import { AppError } from "../utils/app-error";
 import * as folderService from "./folder.service";
 
 const toImageDto = (doc: ImageDocument): ImageFile => ({
   _id: doc._id.toString(),
-  name: doc.name,
-  url: doc.url,
-  size: doc.size,
-  folderId: doc.folderId.toString(),
-  userId: doc.userId.toString(),
   createdAt: doc.createdAt.toISOString(),
+  folderId: doc.folderId.toString(),
+  name: doc.name,
+  size: doc.size,
+  url: doc.url,
+  userId: doc.userId.toString(),
 });
 
 export const listImagesInFolder = async (
   userId: string,
-  folderId: string
+  folderId: string,
 ): Promise<ImageFile[]> => {
   await folderService.assertFolderOwned(userId, folderId);
   const uid = new mongoose.Types.ObjectId(userId);
   const images = await ImageModel.find({
-    userId: uid,
     folderId,
+    userId: uid,
   }).sort({ createdAt: -1 });
   return images.map((doc) => toImageDto(doc));
 };
 
 export const createImageRecord = async (params: {
-  userId: string;
   folderId: string;
   name: string;
-  url: string;
   size: number;
+  url: string;
+  userId: string;
 }): Promise<ImageFile> => {
   await folderService.assertFolderOwned(params.userId, params.folderId);
   const doc = await ImageModel.create({
-    userId: new mongoose.Types.ObjectId(params.userId),
     folderId: new mongoose.Types.ObjectId(params.folderId),
     name: params.name,
-    url: params.url,
     size: params.size,
+    url: params.url,
+    userId: new mongoose.Types.ObjectId(params.userId),
   });
   return toImageDto(doc);
 };
 
 export const deleteImageRecord = async (
   userId: string,
-  imageId: string
+  imageId: string,
 ): Promise<void> => {
   if (!mongoose.Types.ObjectId.isValid(imageId)) {
     throw new AppError(400, "Invalid image id", "INVALID_IMAGE_ID");
@@ -64,7 +64,11 @@ export const deleteImageRecord = async (
   });
 
   if (!image) {
-    throw new AppError(404, "Image not found or access denied", "IMAGE_NOT_FOUND");
+    throw new AppError(
+      404,
+      "Image not found or access denied",
+      "IMAGE_NOT_FOUND",
+    );
   }
 
   await image.deleteOne();
@@ -79,7 +83,7 @@ export const deleteImageRecord = async (
 export const renameImageRecord = async (
   userId: string,
   imageId: string,
-  name: string
+  name: string,
 ): Promise<ImageFile> => {
   if (!mongoose.Types.ObjectId.isValid(imageId)) {
     throw new AppError(400, "Invalid image id", "INVALID_IMAGE_ID");
@@ -97,11 +101,15 @@ export const renameImageRecord = async (
       userId: uid,
     },
     { name: nextName },
-    { new: true }
+    { new: true },
   );
 
   if (!image) {
-    throw new AppError(404, "Image not found or access denied", "IMAGE_NOT_FOUND");
+    throw new AppError(
+      404,
+      "Image not found or access denied",
+      "IMAGE_NOT_FOUND",
+    );
   }
 
   return toImageDto(image);
@@ -109,7 +117,7 @@ export const renameImageRecord = async (
 
 export const searchImagesByQuery = async (
   userId: string,
-  query: string
+  query: string,
 ): Promise<ImageFile[]> => {
   const trimmed = query.trim();
   if (!trimmed) {
@@ -118,8 +126,8 @@ export const searchImagesByQuery = async (
 
   const uid = new mongoose.Types.ObjectId(userId);
   const images = await ImageModel.find({
+    name: { $options: "i", $regex: trimmed },
     userId: uid,
-    name: { $regex: trimmed, $options: "i" },
   }).sort({ createdAt: -1 });
 
   return images.map((doc) => toImageDto(doc));

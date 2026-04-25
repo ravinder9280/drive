@@ -1,61 +1,71 @@
-import type { Folder, FolderNode, ImageFile, ListFoldersResponse } from "@monorepo/types";
+import type {
+  Folder,
+  FolderNode,
+  ImageFile,
+  ListFoldersResponse,
+} from "@monorepo/types";
+
 import mongoose from "mongoose";
 
-import { FolderModel, type FolderDocument } from "../models/folder.model";
+import { type FolderDocument, FolderModel } from "../models/folder.model";
 import { ImageModel } from "../models/image.model";
-import { calculateFolderSize } from "../utils/calculateFolderSize";
 import { AppError } from "../utils/app-error";
+import { calculateFolderSize } from "../utils/calculateFolderSize";
 
 const toFolderDto = (doc: FolderDocument): Folder => ({
   _id: doc._id.toString(),
-  name: doc.name,
-  userId: doc.userId.toString(),
-  parentId: doc.parentId ? doc.parentId.toString() : null,
   createdAt: doc.createdAt.toISOString(),
+  name: doc.name,
+  parentId: doc.parentId ? doc.parentId.toString() : null,
+  userId: doc.userId.toString(),
 });
 
 const toFolderDtoLean = (f: {
   _id: mongoose.Types.ObjectId;
-  name: string;
-  userId: mongoose.Types.ObjectId;
-  parentId: mongoose.Types.ObjectId | null | undefined;
   createdAt: Date;
+  name: string;
+  parentId: mongoose.Types.ObjectId | null | undefined;
+  userId: mongoose.Types.ObjectId;
 }): Folder => ({
   _id: f._id.toString(),
-  name: f.name,
-  userId: f.userId.toString(),
-  parentId: f.parentId ? f.parentId.toString() : null,
   createdAt: f.createdAt.toISOString(),
+  name: f.name,
+  parentId: f.parentId ? f.parentId.toString() : null,
+  userId: f.userId.toString(),
 });
 
 const toImageDtoLean = (i: {
   _id: mongoose.Types.ObjectId;
-  name: string;
-  url: string;
-  size: number;
-  folderId: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
   createdAt: Date;
+  folderId: mongoose.Types.ObjectId;
+  name: string;
+  size: number;
+  url: string;
+  userId: mongoose.Types.ObjectId;
 }): ImageFile => ({
   _id: i._id.toString(),
-  name: i.name,
-  url: i.url,
-  size: i.size,
-  folderId: i.folderId.toString(),
-  userId: i.userId.toString(),
   createdAt: i.createdAt.toISOString(),
+  folderId: i.folderId.toString(),
+  name: i.name,
+  size: i.size,
+  url: i.url,
+  userId: i.userId.toString(),
 });
 
 export const assertFolderOwned = async (
   userId: string,
-  folderId: string
+  folderId: string,
 ): Promise<FolderDocument> => {
   const folder = await FolderModel.findOne({
     _id: folderId,
     userId: new mongoose.Types.ObjectId(userId),
   });
   if (!folder) {
-    throw new AppError(404, "Folder not found or access denied", "FOLDER_NOT_FOUND");
+    throw new AppError(
+      404,
+      "Folder not found or access denied",
+      "FOLDER_NOT_FOUND",
+    );
   }
   return folder;
 };
@@ -63,7 +73,7 @@ export const assertFolderOwned = async (
 export const createFolder = async (
   userId: string,
   name: string,
-  parentId: string | null | undefined
+  parentId: null | string | undefined,
 ): Promise<Folder> => {
   const uid = new mongoose.Types.ObjectId(userId);
   let parentObjectId: mongoose.Types.ObjectId | null = null;
@@ -73,7 +83,7 @@ export const createFolder = async (
       throw new AppError(
         404,
         "Parent folder not found or access denied",
-        "PARENT_NOT_FOUND"
+        "PARENT_NOT_FOUND",
       );
     }
     parentObjectId = parent._id;
@@ -81,14 +91,14 @@ export const createFolder = async (
 
   const folder = await FolderModel.create({
     name,
-    userId: uid,
     parentId: parentObjectId,
+    userId: uid,
   });
   return toFolderDto(folder);
 };
 
 export const listFoldersWithSizes = async (
-  userId: string
+  userId: string,
 ): Promise<ListFoldersResponse> => {
   const uid = new mongoose.Types.ObjectId(userId);
 
@@ -105,7 +115,7 @@ export const listFoldersWithSizes = async (
     images.map((i) => ({
       folderId: i.folderId.toString(),
       size: i.size,
-    }))
+    })),
   );
 
   const foldersWithSize = folderDtos.map((f) => ({
@@ -126,7 +136,7 @@ export const getFolderTree = async (userId: string): Promise<FolderNode[]> => {
       _id: f._id.toString(),
       parentId: f.parentId ? f.parentId.toString() : null,
     })),
-    images.map((i) => ({ folderId: i.folderId.toString(), size: i.size }))
+    images.map((i) => ({ folderId: i.folderId.toString(), size: i.size })),
   );
 
   const imageDtosByFolder = new Map<string, ImageFile[]>();

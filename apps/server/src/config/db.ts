@@ -9,8 +9,8 @@ if (!MONGODB_URI) {
 // Extend global type
 declare global {
   var mongooseConn: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: null | typeof mongoose;
+    promise: null | Promise<typeof mongoose>;
   };
 }
 

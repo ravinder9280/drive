@@ -1,9 +1,5 @@
 "use client";
 
-import axios from "axios";
-import { UploadIcon } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
-
 import { Button } from "@monorepo/ui/components/button";
 import {
   Dialog,
@@ -13,22 +9,25 @@ import {
   DialogTitle,
 } from "@monorepo/ui/components/dialog";
 import { Input } from "@monorepo/ui/components/input";
-
-import * as imageApi from "@/services/image.api";
+import axios from "axios";
+import { UploadIcon } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import * as imageApi from "@/services/image.api";
+
 interface UploadModalProps {
-  open: boolean;
+  folderId: null | string;
   onOpenChange: (open: boolean) => void;
-  folderId: string | null;
   onUploaded: () => void;
+  open: boolean;
 }
 
 export function UploadModal({
-  open,
-  onOpenChange,
   folderId,
+  onOpenChange,
   onUploaded,
+  open,
 }: UploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
@@ -52,7 +51,7 @@ export function UploadModal({
         setName(nextFile.name);
       }
     },
-    [name]
+    [name],
   );
 
   const handleFileSelect = useCallback(
@@ -60,21 +59,27 @@ export function UploadModal({
       const selected = event.target.files?.[0] ?? null;
       setSelectedFile(selected);
     },
-    [setSelectedFile]
+    [setSelectedFile],
   );
 
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (!folderId) {
-      return;
-    }
-    setIsDragging(true);
-  }, [folderId]);
+  const handleDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      if (!folderId) {
+        return;
+      }
+      setIsDragging(true);
+    },
+    [folderId],
+  );
 
-  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-  }, []);
+  const handleDragLeave = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      setIsDragging(false);
+    },
+    [],
+  );
 
   const handleDrop = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
@@ -85,11 +90,11 @@ export function UploadModal({
       }
       const droppedImage =
         Array.from(event.dataTransfer.files).find((candidate) =>
-          candidate.type.startsWith("image/")
+          candidate.type.startsWith("image/"),
         ) ?? null;
       setSelectedFile(droppedImage);
     },
-    [folderId, setSelectedFile]
+    [folderId, setSelectedFile],
   );
 
   const handleClose = (next: boolean) => {
@@ -108,17 +113,17 @@ export function UploadModal({
     setSubmitting(true);
     try {
       await imageApi.uploadImage({
-        folderId,
         file,
+        folderId,
         name: name.trim() || undefined,
       });
       reset();
       onOpenChange(false);
       onUploaded();
-      toast.success("Image Uploaded Successfully")
+      toast.success("Image Uploaded Successfully");
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message ?? err.message
+        ? ((err.response?.data as { message?: string })?.message ?? err.message)
         : "Upload failed";
       toast.error(message);
     } finally {
@@ -127,40 +132,38 @@ export function UploadModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog onOpenChange={handleClose} open={open}>
       <DialogContent className="sm:max-w-md">
         <form onSubmit={(e) => void handleSubmit(e)}>
           <DialogHeader>
             <DialogTitle>Upload image</DialogTitle>
-            
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`relative flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 py-16 transition-colors ${isDragging
-                  ? "border-zinc-400 bg-muted/90"
-                  : "border-zinc-300 hover:border-zinc-400 bg-muted dark:bg-muted/50"
-                  }`}
+                className={`relative flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 py-16 transition-colors ${
+                  isDragging
+                    ? "border-zinc-400 bg-muted/90"
+                    : "border-zinc-300 hover:border-zinc-400 bg-muted dark:bg-muted/50"
+                }`}
                 onClick={() => fileInputRef.current?.click()}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
               >
                 <input
-                  ref={fileInputRef}
-                  id="image-upload"
-                  type="file"
                   accept="image/*"
-                  disabled={!folderId}
-                  onChange={handleFileSelect}
                   className="hidden"
+                  disabled={!folderId}
+                  id="image-upload"
+                  onChange={handleFileSelect}
+                  ref={fileInputRef}
+                  type="file"
                 />
                 {file ? (
                   <>
                     <UploadIcon className="mb-4 size-6" />
-                    <p className="mb-1 text-sm font-semibold ">
-                      {file.name}
-                    </p>
+                    <p className="mb-1 text-sm font-semibold ">{file.name}</p>
                     <p className="text-sm font-normal text-zinc-500">
                       Click to select a different image
                     </p>
@@ -184,22 +187,21 @@ export function UploadModal({
               </label>
               <Input
                 id="upload-name"
-                value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Optional"
+                value={name}
               />
             </div>
-            
           </div>
           <DialogFooter>
             <Button
+              onClick={() => handleClose(false)}
               type="button"
               variant="outline"
-              onClick={() => handleClose(false)}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting || !folderId || !file}>
+            <Button disabled={submitting || !folderId || !file} type="submit">
               {submitting ? "Uploading…" : "Upload"}
             </Button>
           </DialogFooter>

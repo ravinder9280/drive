@@ -2,24 +2,24 @@ import mongoose, { type InferSchemaType, Schema } from "mongoose";
 
 const folderSchema = new Schema(
   {
-    name: { type: String, required: true, trim: true },
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      index: true,
-    },
+    name: { required: true, trim: true, type: String },
     parentId: {
-      type: Schema.Types.ObjectId,
-      ref: "Folder",
       default: null,
       index: true,
+      ref: "Folder",
+      type: Schema.Types.ObjectId,
+    },
+    userId: {
+      index: true,
+      ref: "User",
+      required: true,
+      type: Schema.Types.ObjectId,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-folderSchema.index({ userId: 1, parentId: 1 });
+folderSchema.index({ parentId: 1, userId: 1 });
 
 export type FolderDocument = InferSchemaType<typeof folderSchema> & {
   _id: mongoose.Types.ObjectId;

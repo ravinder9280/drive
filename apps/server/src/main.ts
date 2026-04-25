@@ -1,5 +1,4 @@
 import "dotenv/config";
-
 import * as http from "node:http";
 
 import app from "./app";
@@ -15,7 +14,6 @@ const init = async (): Promise<void> => {
     console.log(`API http server running on port ${port}`);
   });
 };
-
 
 init().catch((err: unknown) => {
   console.error(err);

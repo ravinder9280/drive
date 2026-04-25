@@ -1,4 +1,6 @@
-'use client'
+"use client";
+import type { ImageFile } from "@monorepo/types";
+
 import {
   Combobox,
   ComboboxContent,
@@ -6,56 +8,58 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '@monorepo/ui/components/combobox'
-import type { ImageFile } from '@monorepo/types'
-import { useQuery } from '@tanstack/react-query'
-import { Search, FileImageIcon, Loader2 } from 'lucide-react'
-import React, { useState } from 'react'
-import { useDebounce } from '@/hooks/useDebounce'
-import { listByQuery } from '@/services/image.api'
-import { useRouter } from 'next/navigation'
-import ImageModal from '@/components/ImageModal' // adjust path as needed
+} from "@monorepo/ui/components/combobox";
+import { useQuery } from "@tanstack/react-query";
+import { FileImageIcon, Loader2, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
+import ImageModal from "@/components/ImageModal"; // adjust path as needed
+import { useDebounce } from "@/hooks/useDebounce";
+import { listByQuery } from "@/services/image.api";
 import * as imageApi from "@/services/image.api";
 
 const SearchModal = () => {
-  const [inputValue, setInputValue] = useState('')
-  const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
-  const debouncedQuery = useDebounce(inputValue, 300)
-  const router = useRouter()
+  const [inputValue, setInputValue] = useState("");
+  const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const debouncedQuery = useDebounce(inputValue, 300);
+  const router = useRouter();
 
   const { data: results = [], isLoading } = useQuery({
-    queryKey: ['image-search', debouncedQuery],
-    queryFn: () => listByQuery(debouncedQuery),
     enabled: debouncedQuery.trim().length > 0,
-  })
+    queryFn: () => listByQuery(debouncedQuery),
+    queryKey: ["image-search", debouncedQuery],
+  });
 
-  const [isItemSelected, setIsItemSelected] = useState(false)
+  const [isItemSelected, setIsItemSelected] = useState(false);
 
   const handleSelect = (img: ImageFile) => {
-    setIsItemSelected(true)
-    setSelectedImage(img)
-    setInputValue('')
-    setModalOpen(true)
-  }
+    setIsItemSelected(true);
+    setSelectedImage(img);
+    setInputValue("");
+    setModalOpen(true);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isItemSelected && inputValue.trim()) {
-      router.push(`/dashboard/search?query=${encodeURIComponent(inputValue.trim())}`)
+    if (e.key === "Enter" && !isItemSelected && inputValue.trim()) {
+      router.push(
+        `/dashboard/search?query=${encodeURIComponent(inputValue.trim())}`,
+      );
     }
-    setIsItemSelected(false)
-  }
+    setIsItemSelected(false);
+  };
 
   return (
     <>
       <div className="max-w-2xl w-full relative">
         <Combobox<ImageFile>
+          filteredItems={results}
+          inputValue={inputValue} // controlled input
           items={results}
           itemToStringValue={(img) => img.name}
           onInputValueChange={setInputValue}
           onValueChange={(img) => img && handleSelect(img as ImageFile)}
-          filteredItems={results}
-          inputValue={inputValue}                  // controlled input
         >
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
@@ -66,35 +70,39 @@ const SearchModal = () => {
               )}
             </span>
             <ComboboxInput
-              className="pl-10 w-full rounded-full h-12 bg-secondary border dark:border-white/5"
-              placeholder="Search Files, Folders and Anything..."
+              className="pl-10 w-full rounded-full h-12 bg-secondary border  shadow-none dark:border-white/10"
               onKeyDown={handleKeyDown}
+              placeholder="Search Files, Folders and Anything..."
               showClear={true}
               showTrigger={false}
-
             />
           </div>
 
           <ComboboxContent className="max-w-2xl ">
-            {results.length == 0 && debouncedQuery &&
-
+            {results.length == 0 && debouncedQuery && (
               <ComboboxEmpty>
-                {debouncedQuery.trim() ? 'No images found.' : ''}
+                {debouncedQuery.trim() ? "No images found." : ""}
               </ComboboxEmpty>
-            }
+            )}
             <ComboboxList className="w-full">
               {(img: ImageFile) => (
                 <ComboboxItem
-                  key={img._id}
-                  value={img}
                   className="flex items-center gap-3"
+                  key={img._id}
                   onSelect={() => handleSelect(img)}
+                  value={img}
                 >
                   <div className="h-8 w-8 rounded overflow-hidden bg-muted flex-shrink-0">
-                    <img src={imageApi.imageUrlToAbsolute(img.url)} alt={img.name} className="h-full w-full object-cover" />
+                    <img
+                      alt={img.name}
+                      className="h-full w-full object-cover"
+                      src={imageApi.imageUrlToAbsolute(img.url)}
+                    />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-medium truncate">{img.name}</span>
+                    <span className="text-sm font-medium truncate">
+                      {img.name}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       {(img.size / 1024).toFixed(1)} KB
                     </span>
@@ -113,13 +121,13 @@ const SearchModal = () => {
           image={selectedImage}
           open={modalOpen}
           setOpen={(open) => {
-            setModalOpen(open)
-            if (!open) setSelectedImage(null)
+            setModalOpen(open);
+            if (!open) setSelectedImage(null);
           }}
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default SearchModal
+export default SearchModal;

@@ -2,26 +2,26 @@ import mongoose, { type InferSchemaType, Schema } from "mongoose";
 
 const imageSchema = new Schema(
   {
-    name: { type: String, required: true, trim: true },
-    url: { type: String, required: true },
-    size: { type: Number, required: true, min: 0 },
     folderId: {
-      type: Schema.Types.ObjectId,
+      index: true,
       ref: "Folder",
       required: true,
-      index: true,
-    },
-    userId: {
       type: Schema.Types.ObjectId,
+    },
+    name: { required: true, trim: true, type: String },
+    size: { min: 0, required: true, type: Number },
+    url: { required: true, type: String },
+    userId: {
+      index: true,
       ref: "User",
       required: true,
-      index: true,
+      type: Schema.Types.ObjectId,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-imageSchema.index({ userId: 1, folderId: 1 });
+imageSchema.index({ folderId: 1, userId: 1 });
 
 export type ImageDocument = InferSchemaType<typeof imageSchema> & {
   _id: mongoose.Types.ObjectId;

@@ -1,24 +1,23 @@
 "use client";
 
+import { Button } from "@monorepo/ui/components/button";
+import { Input } from "@monorepo/ui/components/input";
 import axios from "axios";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Button } from "@monorepo/ui/components/button";
-import { Input } from "@monorepo/ui/components/input";
-
 import { useAuth } from "@/hooks/useAuth";
-import { authStore } from "@/store/auth.store";
 import * as authApi from "@/services/auth.api";
-import Image from "next/image";
+import { authStore } from "@/store/auth.store";
 
 export default function SignupPage() {
   const router = useRouter();
   const { isAuthed } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export default function SignupPage() {
       router.replace("/dashboard");
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message ?? err.message
+        ? ((err.response?.data as { message?: string })?.message ?? err.message)
         : "Signup failed";
       setError(message);
     } finally {
@@ -49,26 +48,33 @@ export default function SignupPage() {
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex items-center justify-center gap-2">
-
-        <Image src="/drive-logo.png" alt="Drive Logo" width={32} height={32} />
-        <h1 className="text-2xl font-semibold tracking-tight text-muted-foreground">Drive</h1>
+          <Image
+            alt="Drive Logo"
+            height={32}
+            src="/drive-logo.png"
+            width={32}
+          />
+          <h1 className="text-2xl font-semibold tracking-tight text-muted-foreground">
+            Drive
+          </h1>
         </div>
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create a new account</h1>
-
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Create a new account
+          </h1>
         </div>
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+        <form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="email">
               Email
             </label>
             <Input
-              id="email"
-              type="email"
               autoComplete="email"
-              value={email}
+              id="email"
               onChange={(e) => setEmail(e.target.value)}
               required
+              type="email"
+              value={email}
             />
           </div>
           <div className="space-y-2">
@@ -76,13 +82,13 @@ export default function SignupPage() {
               Password
             </label>
             <Input
-              id="password"
-              type="password"
               autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              id="password"
               minLength={8}
+              onChange={(e) => setPassword(e.target.value)}
               required
+              type="password"
+              value={password}
             />
           </div>
           {error ? (
@@ -90,13 +96,16 @@ export default function SignupPage() {
               {error}
             </p>
           ) : null}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button className="w-full" disabled={loading} type="submit">
             {loading ? "Creating account…" : "Sign up"}
           </Button>
         </form>
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?
-          <Link href="/login" className="text-primary ml-2 underline-offset-4 hover:underline">
+          <Link
+            className="text-primary ml-2 underline-offset-4 hover:underline"
+            href="/login"
+          >
             Sign in
           </Link>
         </p>

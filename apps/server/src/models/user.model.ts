@@ -3,20 +3,20 @@ import mongoose, { type InferSchemaType, Schema } from "mongoose";
 const userSchema = new Schema(
   {
     email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
       index: true,
+      lowercase: true,
+      required: true,
+      trim: true,
+      type: String,
+      unique: true,
     },
     passwordHash: {
-      type: String,
       required: true,
       select: false,
+      type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export type UserDocument = InferSchemaType<typeof userSchema> & {

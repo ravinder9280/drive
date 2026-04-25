@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+
 import { z } from "zod";
 
 import * as authService from "../services/auth.service";
@@ -20,7 +21,10 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
   if (!parsed.success) {
     throw new AppError(400, parsed.error.issues[0]?.message ?? "Invalid body");
   }
-  const result = await authService.signup(parsed.data.email, parsed.data.password);
+  const result = await authService.signup(
+    parsed.data.email,
+    parsed.data.password,
+  );
   res.status(201).json(result);
 });
 
@@ -29,6 +33,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   if (!parsed.success) {
     throw new AppError(400, parsed.error.issues[0]?.message ?? "Invalid body");
   }
-  const result = await authService.login(parsed.data.email, parsed.data.password);
+  const result = await authService.login(
+    parsed.data.email,
+    parsed.data.password,
+  );
   res.json(result);
 });
