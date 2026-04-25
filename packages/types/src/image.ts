@@ -6,4 +6,5 @@ export interface ImageFile {
   folderId: string;
   userId: string;
   createdAt: string;
+  key?:string
 }

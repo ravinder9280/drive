@@ -57,22 +57,24 @@ export function FileCard({
 
   const handleDownload = async (): Promise<void> => {
     try {
-      const response = await fetch(src, { mode: "cors" });
+      const response = await fetch(src);
+      
+      if (!response.ok) throw new Error("Download failed");
+      
       const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
+  
       const link = document.createElement("a");
-
-      link.href = url;
+      link.href = blobUrl;
       link.download = image.name || "download";
-
       document.body.appendChild(link);
       link.click();
-
       link.remove();
-      window.URL.revokeObjectURL(url);
+  
+      window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Download failed", err);
+      toast.error("Download failed");
     }
   };
 

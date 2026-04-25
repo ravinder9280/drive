@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 
 import { z } from "zod";
 
+import { uploadFile } from "../config/aws";
 import * as imageService from "../services/image.service";
 import { AppError } from "../utils/app-error";
 import { asyncHandler } from "../utils/async-handler";
@@ -37,6 +38,7 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError(401, "Unauthorized");
   }
   const file = req.file;
+  
   if (!file) {
     throw new AppError(400, "image file is required");
   }
@@ -52,12 +54,19 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
       ? nameRaw.trim()
       : file.originalname;
 
-  const publicUrl = `/uploads/${file.filename}`;
+  const uploadedUrl = await uploadFile(
+    "demo",
+    name,
+    file.mimetype,
+    file.buffer,
+  );
+
   const image = await imageService.createImageRecord({
     folderId,
+    key: uploadedUrl.key,
     name,
     size: file.size,
-    url: publicUrl,
+    url: uploadedUrl.Location,
     userId,
   });
 

@@ -8,6 +8,7 @@ const imageSchema = new Schema(
       required: true,
       type: Schema.Types.ObjectId,
     },
+    key: { required: true, type: String },
     name: { required: true, trim: true, type: String },
     size: { min: 0, required: true, type: Number },
     url: { required: true, type: String },
