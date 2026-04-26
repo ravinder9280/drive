@@ -5,7 +5,7 @@ import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-import { FileCard } from "@/components/FileCard";
+import { FileCard } from "@/components/File/FileCard";
 import { listByQuery } from "@/services/image.api";
 
 const SearchResultClient = ({ query }: { query: string }) => {

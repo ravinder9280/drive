@@ -54,7 +54,7 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
       ? nameRaw.trim()
       : file.originalname;
 
-  const uploadedUrl = await uploadFile(
+  const uploadedImage = await uploadFile(
     "demo",
     name,
     file.mimetype,
@@ -63,10 +63,9 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
 
   const image = await imageService.createImageRecord({
     folderId,
-    key: uploadedUrl.key,
+    key: uploadedImage.key,
     name,
     size: file.size,
-    url: uploadedUrl.Location,
     userId,
   });
 

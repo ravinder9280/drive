@@ -14,7 +14,7 @@ import { FileImageIcon, Loader2, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-import ImageModal from "@/components/ImageModal"; // adjust path as needed
+import ImageModal from "@/components/File/ImageModal"; // adjust path as needed
 import { useDebounce } from "@/hooks/useDebounce";
 import { listByQuery } from "@/services/image.api";
 import * as imageApi from "@/services/image.api";
@@ -96,7 +96,7 @@ const SearchModal = () => {
                     <img
                       alt={img.name}
                       className="h-full w-full object-cover"
-                      src={imageApi.imageUrlToAbsolute(img.url)}
+                      src={imageApi.imageUrlToAbsolute(img.url||"")}
                     />
                   </div>
                   <div className="flex flex-col min-w-0">

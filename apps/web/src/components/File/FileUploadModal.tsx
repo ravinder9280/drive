@@ -13,22 +13,23 @@ import axios from "axios";
 import { UploadIcon } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import * as imageApi from "@/services/image.api";
 
 interface UploadModalProps {
   folderId: null | string;
-  onOpenChange: (open: boolean) => void;
-  onUploaded: () => void;
-  open: boolean;
+ 
 }
 
-export function UploadModal({
+export function FileUploadModal({
   folderId,
-  onOpenChange,
-  onUploaded,
-  open,
+  
 }: UploadModalProps) {
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -101,7 +102,7 @@ export function UploadModal({
     if (!next) {
       reset();
     }
-    onOpenChange(next);
+    setUploadOpen(next);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,9 +119,10 @@ export function UploadModal({
         name: name.trim() || undefined,
       });
       reset();
-      onOpenChange(false);
-      onUploaded();
+      setUploadOpen(false);
       toast.success("Image Uploaded Successfully");
+      queryClient.invalidateQueries({ queryKey: ["folder-images", folderId] });
+
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? ((err.response?.data as { message?: string })?.message ?? err.message)
@@ -132,7 +134,12 @@ export function UploadModal({
   };
 
   return (
-    <Dialog onOpenChange={handleClose} open={open}>
+    <>
+    <Button disabled={!folderId} onClick={() => setUploadOpen(true)}>
+          <UploadIcon className="size-4" />
+          <span className="hidden md:block">Upload File</span>
+        </Button>
+    <Dialog onOpenChange={handleClose} open={uploadOpen}  >
       <DialogContent className="sm:max-w-md">
         <form onSubmit={(e) => void handleSubmit(e)}>
           <DialogHeader>
@@ -190,7 +197,7 @@ export function UploadModal({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Optional"
                 value={name}
-              />
+                />
             </div>
           </div>
           <DialogFooter>
@@ -198,7 +205,7 @@ export function UploadModal({
               onClick={() => handleClose(false)}
               type="button"
               variant="outline"
-            >
+              >
               Cancel
             </Button>
             <Button disabled={submitting || !folderId || !file} type="submit">
@@ -208,5 +215,6 @@ export function UploadModal({
         </form>
       </DialogContent>
     </Dialog>
+              </>
   );
 }

@@ -21,11 +21,7 @@ export async function getPresignedUrl(key: string): Promise<string> {
     return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
   }
 
-// type ImgType = {
-//     image_url: string;
-//     filename: string;
-//     slug: string;
-// };
+
 export async function uploadFile(folder: string, fileName: string, mimetype: string, fileBuffer: Buffer) {
     const key = folder ? `${folder}/${fileName}` : fileName;
     const uploadParams = {

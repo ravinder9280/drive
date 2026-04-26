@@ -1,19 +1,17 @@
 import type { ImageFile } from "@monorepo/types";
 
 import mongoose from "mongoose";
-import fs from "node:fs/promises";
-import path from "node:path";
 
+import { getPresignedUrl } from "../config/aws";
 import { type ImageDocument, ImageModel } from "../models/image.model";
 import { AppError } from "../utils/app-error";
 import * as folderService from "./folder.service";
-import { getPresignedUrl } from "../config/aws";
 
 const withPresignedUrls = async (images: ImageFile[]): Promise<ImageFile[]> => {
   return Promise.all(
     images.map(async (img) => ({
       ...img,
-      url: await getPresignedUrl(img.key||""),
+      url: await getPresignedUrl(img.key || ""),
     }))
   );
 };
@@ -25,7 +23,7 @@ const toImageDto = (doc: ImageDocument): ImageFile => ({
   key: doc.key,
   name: doc.name,
   size: doc.size,
-  url: doc.url,
+  url: "",
   userId: doc.userId.toString(),
 });
 
@@ -41,7 +39,7 @@ export const listImagesInFolder = async (
     folderId,
     userId: uid,
   }).sort({ createdAt: -1 });
-  return withPresignedUrls(images.map(toImageDto)); 
+  return withPresignedUrls(images.map(toImageDto));
 };
 
 export const createImageRecord = async (params: {
@@ -49,7 +47,6 @@ export const createImageRecord = async (params: {
   key: string;
   name: string;
   size: number;
-  url: string;
   userId: string;
 }): Promise<ImageFile> => {
   await folderService.assertFolderOwned(params.userId, params.folderId);
@@ -58,10 +55,12 @@ export const createImageRecord = async (params: {
     key: params.key,
     name: params.name,
     size: params.size,
-    url: params.url,
     userId: new mongoose.Types.ObjectId(params.userId)
   });
-  return toImageDto(doc);
+  const dto = toImageDto(doc);
+  const [withUrl] = await withPresignedUrls([dto]); 
+  return withUrl;
+
 };
 
 export const deleteImageRecord = async (
@@ -88,11 +87,7 @@ export const deleteImageRecord = async (
 
   await image.deleteOne();
 
-  if (image.url.startsWith("/uploads/")) {
-    const filename = image.url.replace("/uploads/", "");
-    const absolutePath = path.join(process.cwd(), "uploads", filename);
-    await fs.unlink(absolutePath).catch(() => undefined);
-  }
+
 };
 
 export const renameImageRecord = async (
@@ -126,8 +121,9 @@ export const renameImageRecord = async (
       "IMAGE_NOT_FOUND",
     );
   }
-
-  return toImageDto(image);
+  const dto = toImageDto(image);
+  const [withUrl] = await withPresignedUrls([dto]);
+  return withUrl;
 };
 
 export const searchImagesByQuery = async (
@@ -144,5 +140,5 @@ export const searchImagesByQuery = async (
     name: { $options: "i", $regex: trimmed },
     userId: uid,
   }).sort({ createdAt: -1 });
-  return withPresignedUrls(images.map(toImageDto)); 
+  return withPresignedUrls(images.map(toImageDto));
 };

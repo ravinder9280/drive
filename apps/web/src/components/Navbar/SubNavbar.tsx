@@ -18,20 +18,17 @@ import React, { Fragment, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFolders } from "@/hooks/useFolders";
 
-import { UploadModal } from "../UploadModal";
+import { FileUploadModal } from "../File/FileUploadModal";
 
 const SubNavbar = ({
-  onUploaded,
-  selectedId,
+  selectedFolderId,
   setView,
   view,
 }: {
-  onUploaded: () => void;
-  selectedId: null | string;
+  selectedFolderId: null | string;
   setView: (v: "grid" | "list") => void;
   view: "grid" | "list";
 }) => {
-  const [uploadOpen, setUploadOpen] = useState(false);
 
   const { isAuthed } = useAuth();
   const { folders } = useFolders({ enabled: isAuthed });
@@ -63,12 +60,12 @@ const SubNavbar = ({
     return trail;
   }
   const folderBreadcrumbTrail = useMemo(
-    () => getFolderBreadcrumbTrail(folders, selectedId),
-    [folders, selectedId],
+    () => getFolderBreadcrumbTrail(folders, selectedFolderId),
+    [folders, selectedFolderId],
   );
   return (
-    <div className="border-b px-6 h-16 flex flex-wrap items-center sticky top-0 justify-between gap-3">
-      <div className="min-w-0 flex-1">
+    <div className="border-b px-6 min-h-16 flex flex-wrap items-center  justify-between gap-3">
+      <div className=" flex-1">
         {folderBreadcrumbTrail.length > 0 ? (
           <>
             <Breadcrumb>
@@ -130,17 +127,13 @@ const SubNavbar = ({
             <List />
           </Button>
         </ButtonGroup>
-        <Button disabled={!selectedId} onClick={() => setUploadOpen(true)}>
-          <UploadIcon className="size-4" />
-          <span className="hidden md:block">Upload File</span>
-        </Button>
+        <FileUploadModal
+          folderId={selectedFolderId}
+
+        />
+
       </div>
-      <UploadModal
-        folderId={selectedId}
-        onOpenChange={setUploadOpen}
-        onUploaded={onUploaded}
-        open={uploadOpen}
-      />
+
     </div>
   );
 };

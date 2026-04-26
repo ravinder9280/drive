@@ -11,7 +11,6 @@ const imageSchema = new Schema(
     key: { required: true, type: String },
     name: { required: true, trim: true, type: String },
     size: { min: 0, required: true, type: Number },
-    url: { required: true, type: String },
     userId: {
       index: true,
       ref: "User",

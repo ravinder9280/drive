@@ -20,7 +20,7 @@ import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 import { ModeToggle } from "../ModeToggle";
-import SearchModal from "../SearchModal";
+import SearchModal from "../Search/SearchModal";
 
 const Navbar = () => {
   const { logout, user } = useAuth();

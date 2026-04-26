@@ -85,7 +85,7 @@ function FolderTreeNode({
           size={"lg"}
           style={{ paddingLeft: `${8 + depth * 14}px` }}
           type="button"
-          variant={isSelected ? "secondary" : "ghost"}
+          variant={"ghost"}
         >
           <div className="flex items-center gap-1 ">
             <ChevronDown className="h-2 w-2 text-muted-foreground" />

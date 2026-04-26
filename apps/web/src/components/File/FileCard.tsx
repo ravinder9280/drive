@@ -28,6 +28,7 @@ import {
   EllipsisVerticalIcon,
   EyeIcon,
   File,
+  FileIcon,
   PencilIcon,
   TrashIcon,
 } from "lucide-react";
@@ -47,7 +48,7 @@ export function FileCard({
   onImageUpdated?: () => void;
   view: "grid" | "list";
 }) {
-  const src = imageApi.imageUrlToAbsolute(image.url);
+  const src = imageApi.imageUrlToAbsolute(image.url || "");
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
@@ -58,19 +59,19 @@ export function FileCard({
   const handleDownload = async (): Promise<void> => {
     try {
       const response = await fetch(src);
-      
+
       if (!response.ok) throw new Error("Download failed");
-      
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-  
+
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = image.name || "download";
       document.body.appendChild(link);
       link.click();
       link.remove();
-  
+
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Download failed", err);
@@ -169,13 +170,15 @@ export function FileCard({
       ) : (
         <Card className="overflow-hidden py-0  gap-0">
           <CardContent className="p-0 aspect-square relative bg-muted">
-            {}
+            { image.url?
             <img
               alt={image.name}
               className="absolute inset-0 cursor-pointer size-full object-cover"
               onClick={() => setOpen(true)}
               src={src}
-            />
+              />:<FileIcon/>
+
+              }
           </CardContent>
           <CardFooter className="p-3 pr-1 border-t flex items-center gap-2 justify-between">
             <div className="flex flex-col gap-1 flex-1 min-w-0">

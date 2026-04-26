@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@monorepo/ui/components/dialog";
 import { FileIcon, X } from "lucide-react";
@@ -43,7 +42,7 @@ export default function ImageModal({
           <img
             alt={image.name}
             className=" object-contain h-full "
-            src={imageApi.imageUrlToAbsolute(image.url)}
+            src={imageApi.imageUrlToAbsolute(image.url || "")}
           />
         </div>
       </DialogContent>

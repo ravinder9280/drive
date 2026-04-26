@@ -32,7 +32,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const res = await authApi.signup({ email, password });
-      authStore.setAuth(res.token, res.user);
+      authStore.setAuth(res.user);
       router.replace("/dashboard");
     } catch (err) {
       const message = axios.isAxiosError(err)

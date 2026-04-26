@@ -8,16 +8,13 @@ export const authMiddleware = (
   _res: Response,
   next: NextFunction,
 ): void => {
-  const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
-    next(new AppError(401, "Missing or invalid Authorization header"));
-    return;
-  }
-  const token = header.slice("Bearer ".length).trim();
+  const token = req.cookies?.token;
+
   if (!token) {
-    next(new AppError(401, "Missing token"));
+    next(new AppError(401, "Missing authentication token"));
     return;
   }
+
   try {
     req.userId = authService.verifyUserId(token);
     next();

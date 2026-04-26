@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { clearAuth, getToken } from "@/lib/auth";
+import { clearAuth} from "@/lib/auth";
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/v1";
@@ -15,6 +15,7 @@ export const getApiOrigin = (): string => {
 
 export const api = axios.create({
   baseURL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -23,10 +24,7 @@ api.interceptors.request.use((config) => {
   } else if (!config.headers["Content-Type"]) {
     config.headers["Content-Type"] = "application/json";
   }
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+ 
   return config;
 });
 

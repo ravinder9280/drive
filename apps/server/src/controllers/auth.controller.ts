@@ -21,11 +21,17 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
   if (!parsed.success) {
     throw new AppError(400, parsed.error.issues[0]?.message ?? "Invalid body");
   }
-  const result = await authService.signup(
+  const { token, user } = await authService.signup(
     parsed.data.email,
     parsed.data.password,
   );
-  res.status(201).json(result);
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+  res.status(201).json({ user });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
@@ -33,9 +39,24 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   if (!parsed.success) {
     throw new AppError(400, parsed.error.issues[0]?.message ?? "Invalid body");
   }
-  const result = await authService.login(
+  const { token, user } = await authService.login(
     parsed.data.email,
     parsed.data.password,
   );
-  res.json(result);
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+  res.status(201).json({ user });
 });
+export const logout = (req: Request, res: Response) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.json({ success: true });
+};

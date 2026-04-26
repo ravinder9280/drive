@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
@@ -13,7 +14,7 @@ app.get("/", (req, res) => {
 app.use(morgan("tiny"));
 
 app.use(express.json({ limit: "100mb" }));
-
+app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
