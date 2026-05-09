@@ -14,7 +14,7 @@ import { authStore } from "@/store/auth.store";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isAuthed } = useAuth();
+  const { isAuthed, logout } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<null | string>(null);
@@ -32,7 +32,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await authApi.login({ email, password });
-      authStore.setAuth(res.user);
+      authStore.setAuth(res.user, res.token);
+
       router.replace("/dashboard");
     } catch (err) {
       const message = axios.isAxiosError(err)
@@ -95,8 +96,8 @@ export default function LoginPage() {
               {error}
             </p>
           ) : null}
-          <Button className="w-full" disabled={loading} type="submit">
-            {loading ? "Signing in…" : "Sign in"}
+          <Button className="w-full" isLoading={loading} loadingText="Signing in..." type="submit">
+            Sign in
           </Button>
         </form>
         <p className="text-center text-sm text-muted-foreground">
@@ -107,6 +108,8 @@ export default function LoginPage() {
           >
             Sign up
           </Link>
+
+          
         </p>
       </div>
     </main>

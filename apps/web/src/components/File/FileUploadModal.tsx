@@ -208,8 +208,8 @@ export function FileUploadModal({
               >
               Cancel
             </Button>
-            <Button disabled={submitting || !folderId || !file} type="submit">
-              {submitting ? "Uploading…" : "Upload"}
+            <Button disabled={!folderId || !file} isLoading={submitting} loadingText="Uploading..." type="submit">
+              Upload
             </Button>
           </DialogFooter>
         </form>

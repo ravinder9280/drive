@@ -6,7 +6,8 @@ const PRIVATE_ROUTES = ["/dashboard", "/profile", "/settings"];
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    const token = request.cookies.get("token")?.value;
+    const token = request.cookies.get("drive_token")?.value;
+
 
     const isPrivate = PRIVATE_ROUTES.some((route) =>
         pathname.startsWith(route)

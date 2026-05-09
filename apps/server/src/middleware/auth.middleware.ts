@@ -8,7 +8,10 @@ export const authMiddleware = (
   _res: Response,
   next: NextFunction,
 ): void => {
-  const token = req.cookies?.token;
+  const authHeader = req.headers.authorization;
+  const token =
+    authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
+
 
   if (!token) {
     next(new AppError(401, "Missing authentication token"));

@@ -10,7 +10,7 @@ import {
   ComboboxList,
 } from "@monorepo/ui/components/combobox";
 import { useQuery } from "@tanstack/react-query";
-import { FileImageIcon, Loader2, Search } from "lucide-react";
+import { FileImageIcon, Loader, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -64,7 +64,7 @@ const SearchModal = () => {
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
               {isLoading ? (
-                <Loader2 className="h-[18px] w-[18px] text-muted-foreground animate-spin" />
+                <Loader className="h-[18px] w-[18px] text-muted-foreground animate-spin" />
               ) : (
                 <Search className="h-[18px] w-[18px] text-muted-foreground" />
               )}

@@ -112,7 +112,8 @@ const SubNavbar = ({
               localStorage.setItem("view", "grid");
             }}
             size={"icon"}
-            variant={view === "grid" ? "secondary" : "outline"}
+            className={`${view === "grid" ? "bg-primary/80" : ""}`}
+            variant={"outline"}
           >
             <Grid2X2 />
           </Button>
@@ -122,7 +123,8 @@ const SubNavbar = ({
               localStorage.setItem("view", "list");
             }}
             size={"icon"}
-            variant={view === "list" ? "secondary" : "outline"}
+            className={`${view === "list" ? "bg-primary/80" : ""}`}
+            variant={"outline"}
           >
             <List />
           </Button>

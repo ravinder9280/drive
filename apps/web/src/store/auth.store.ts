@@ -17,8 +17,8 @@ export const authStore = {
 
   getUser,
 
-  setAuth(user: User): void {
-    setAuthStorage(user);
+  setAuth(user: User, token: string): void {
+    setAuthStorage(user, token);
   },
 
   subscribe(listener: () => void): () => void {

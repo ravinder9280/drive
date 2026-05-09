@@ -30,8 +30,8 @@ bg-red-400
             </div>
 
             <div className='flex items-center flex-col '>
-                <Badge className='mb-8 bg-primary/10 text-primary  text-base rounded-full'>
-                File Management Made Simple
+                <Badge className='mb-8 bg-yellow-500/15 text-yellow-500  text-base rounded-full'>
+                ⚡ File Management Made Simple
                 </Badge>
 
                 <div className='text-center '>

@@ -32,7 +32,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const res = await authApi.signup({ email, password });
-      authStore.setAuth(res.user);
+      authStore.setAuth(res.user, res.token);
+
       router.replace("/dashboard");
     } catch (err) {
       const message = axios.isAxiosError(err)
@@ -91,13 +92,27 @@ export default function SignupPage() {
               value={password}
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="cpassword">
+             Confirm Password
+            </label>
+            <Input
+              autoComplete="new-password"
+              id="cpassword"
+              minLength={8}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              type="password"
+              value={password}
+            />
+          </div>
           {error ? (
             <p className="text-sm text-destructive" role="alert">
               {error}
             </p>
           ) : null}
-          <Button className="w-full" disabled={loading} type="submit">
-            {loading ? "Creating account…" : "Sign up"}
+          <Button className="w-full" isLoading={loading} loadingText="Creating account..." type="submit">
+            Sign up
           </Button>
         </form>
         <p className="text-center text-sm text-muted-foreground">

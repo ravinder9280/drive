@@ -71,8 +71,8 @@ const NewFolderModal = ({ parentFolderId }: {
                 <span className="hidden md:block">New folder</span>
             </Button>
         </div>
-        <Dialog onOpenChange={setCreateOpen} open={createOpen}>
-            <DialogContent className="">
+        <Dialog onOpenChange={setCreateOpen}  open={createOpen}>
+            <DialogContent showCloseBtn={false} className="">
                 <form onSubmit={(e) => void handleCreateFolder(e)}>
                     <DialogHeader>
                         <DialogTitle>New folder</DialogTitle>
@@ -103,8 +103,8 @@ const NewFolderModal = ({ parentFolderId }: {
                         >
                             Cancel
                         </Button>
-                        <Button disabled={createSubmitting} type="submit">
-                            {createSubmitting ? "Creating…" : "Create"}
+                        <Button isLoading={createSubmitting} loadingText="Creating..." type="submit">
+                            Create
                         </Button>
                     </DialogFooter>
                 </form>

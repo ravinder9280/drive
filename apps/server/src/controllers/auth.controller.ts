@@ -25,13 +25,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     parsed.data.email,
     parsed.data.password,
   );
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-  res.status(201).json({ user });
+  res.status(201).json({ user, token });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
@@ -43,20 +37,5 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     parsed.data.email,
     parsed.data.password,
   );
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-  res.status(201).json({ user });
+  res.status(200).json({ user, token });
 });
-export const logout = (req: Request, res: Response) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
-
-  res.json({ success: true });
-};
