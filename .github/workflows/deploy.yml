@@ -18,6 +18,5 @@ jobs:
             cd ~/drive
             git pull
             cd apps/server
-            pnpm install
-            pnpm build
+            pnpm install --frozen-lockfile
             pm2 restart server
