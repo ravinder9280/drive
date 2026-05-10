@@ -10,6 +10,7 @@ import { FileCard } from "@/components/File/FileCard";
 import { useFolderImages } from "@/hooks/useFolderImages";
 
 import type { ViewType } from "./FolderClient";
+import { FileUploadModal } from "@/components/File/FileUploadModal";
 
 const FileList = ({
   folderId,
@@ -36,11 +37,20 @@ const FileList = ({
       <div className="flex flex-col items-center gap-2 justify-center h-full">
         <Image
           alt="Empty folder"
-          height={200}
+          height={300}
           src="/empty-folder.svg"
-          width={200}
+          width={300}
         />
-        <p className="text-muted-foreground">No images in this folder yet.</p>
+        <h3 className="text-2xl font-bold">No Files in this folder yet.</h3>
+        <p className="text-muted-foreground text-center max-w-md leading-relaxed">
+          Upload your first file to get started.
+        </p>
+        <FileUploadModal folderId={folderId || null} >
+          <span className="block md:hidden">
+
+          Upload file
+          </span>
+        </FileUploadModal>
       </div>
     );
   }

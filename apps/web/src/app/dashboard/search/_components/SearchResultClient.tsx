@@ -26,14 +26,21 @@ const SearchResultClient = ({ query }: { query: string }) => {
   }
   if (results.length == 0) {
     return (
-      <div className="flex flex-col items-center gap-2 justify-center h-full">
-        <Image
-          alt="Empty folder"
-          height={200}
-          src="/empty-folder.svg"
-          width={200}
-        />
-        <p className="text-muted-foreground">No images found.</p>
+      <div className="flex flex-col items-center gap-4 justify-center h-full">
+        <div className="flex flex-col items-center gap-2">
+
+          <Image
+            alt="Empty folder"
+            height={300}
+            src="/no-result.svg"
+            width={300}
+          />
+          <h3 className="text-2xl font-bold">No Results Found.</h3>
+          <p className="text-muted-foreground text-center max-w-md leading-relaxed">
+            We couldn't find any results for your search. Please try again with a different query.
+          </p>
+
+        </div>
       </div>
     );
   }

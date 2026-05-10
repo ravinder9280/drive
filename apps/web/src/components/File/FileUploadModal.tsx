@@ -19,12 +19,13 @@ import * as imageApi from "@/services/image.api";
 
 interface UploadModalProps {
   folderId: null | string;
+  children?: React.ReactNode;
  
 }
 
 export function FileUploadModal({
   folderId,
-  
+  children,
 }: UploadModalProps) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -138,6 +139,9 @@ export function FileUploadModal({
     <Button disabled={!folderId} onClick={() => setUploadOpen(true)}>
           <UploadIcon className="size-4" />
           <span className="hidden md:block">Upload File</span>
+          {
+            children
+          }
         </Button>
     <Dialog onOpenChange={handleClose} open={uploadOpen}  >
       <DialogContent className="sm:max-w-md">

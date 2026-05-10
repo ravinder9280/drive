@@ -18,7 +18,7 @@ export function clearAuth(): void {
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(TOKEN_KEY);
   // Expire the middleware cookie
-  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0; SameSite=Strict`;
+  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
 
@@ -82,6 +82,6 @@ export function setAuth(user: User, token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
   // Set a JS-accessible cookie so the Next.js Edge middleware can gate routes
   const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
-  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${maxAge}; SameSite=Strict`;
+  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${maxAge}; SameSite=Lax`;
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
