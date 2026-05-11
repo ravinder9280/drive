@@ -38,13 +38,16 @@ export const upload = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError(401, "Unauthorized");
   }
   const file = req.file;
-  
+
   if (!file) {
     throw new AppError(400, "image file is required");
   }
-
-  const folderId = req.body.folderId as string | undefined;
-  const nameRaw = req.body.name as string | undefined;
+  const folderId = Array.isArray(req.body.folderId)
+    ? req.body.folderId[0]
+    : req.body.folderId as string | undefined;
+  const nameRaw = Array.isArray(req.body.name)
+    ? req.body.name[0]
+    : req.body.name as string | undefined;
   if (!folderId || typeof folderId !== "string") {
     throw new AppError(400, "folderId is required");
   }
